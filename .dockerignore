@@ -1,0 +1,10 @@
+*
+!Pipfile
+!Makefile
+!setup.cfg
+!setup.py
+!pyproject.toml
+!README.md
+!MANIFEST.in
+!__pkginfo__.py
+!.pre-commit-config.yaml

@@ -68,6 +68,15 @@ run-dev:  ## Start gunicorn (would be used in docker)
 
 install-pre-commit: .git/hooks/pre-commit ## Install Git pre-commit hooks to run linter and mypy
 
+.PHONY: build-docker
+build-docker: Dockerfile
+	docker build \
+		--pull \
+		--no-cache \
+		--tag "scirelli/bbb-python" \
+		--file Dockerfile \
+		.
+
 .PHONY: clean
 clean: ## Remove all generated files and folders
 	@pipenv run pre-commit uninstall || true

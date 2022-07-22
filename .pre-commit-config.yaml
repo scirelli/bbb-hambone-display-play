@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+  rev: v4.2.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -21,18 +21,18 @@ repos:
   - id: detect-private-key
 
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: 'v5.8.0'
+  rev: 'v5.10.1'
   hooks:
   - id: isort
 
 - repo: https://github.com/psf/black
-  rev: 21.5b2 # Replace by any tag/version: https://github.com/psf/black/tags
+  rev: 22.3.0 # Replace by any tag/version: https://github.com/psf/black/tags
   hooks:
     - id: black
       language_version: python3 # Should be a command that runs python3.6+
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.19.1
+  rev: v2.32.0
   hooks:
   - id: pyupgrade
     args: ['--py38-plus', '--keep-runtime-typing']
@@ -45,16 +45,17 @@ repos:
       ^[^/]+[.]rst$
 
 - repo: https://github.com/pycqa/flake8
-  rev: 3.9.2
+  rev: 4.0.1
   hooks:
   - id: flake8
     exclude: "^docs/"
     additional_dependencies: [flake8-typing-imports==1.7.0]
 
 - repo: https://github.com/pre-commit/mirrors-autopep8
-  rev: v1.5.7
+  rev: v1.6.0
   hooks:
-  -   id: autopep8
+  - id: autopep8
+#    args: ["-i", "-vvv"]
 
 # - repo: https://github.com/asottile/reorder_python_imports
 #   rev: v2.4.0

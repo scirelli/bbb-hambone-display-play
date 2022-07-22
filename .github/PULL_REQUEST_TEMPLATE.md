@@ -1,4 +1,4 @@
-<!-- 
+<!--
 Please fill in some brief details below about the PR.
 Please remove unused sections.
  -->
