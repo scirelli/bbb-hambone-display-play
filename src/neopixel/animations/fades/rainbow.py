@@ -19,6 +19,7 @@ class Rainbow(Animator):
         self._phase = 0
         self._x = 0
         self._len = len(display.pixels)
+        self._cur_pixel_index = 0
         self._max_animation_time_ns = 10 * NANO_SEC_IN_SEC
         self._total_time_ns = 0
         self._prevTime = perf_counter_ns()
@@ -30,12 +31,14 @@ class Rainbow(Animator):
         self._total_time_ns = self._total_time_ns + elapsed_time_ns
         # dt = self._total_time_ns / self._max_animation_time_ns
 
-        for i, p in enumerate(self.display.get_display()):
-            r = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 0 * self._shift) / self._len) + 1)) + 1
-            g = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 1 * self._shift) / self._len) + 1)) + 1
-            b = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 2 * self._shift) / self._len) + 1)) + 1
-            p.r = r
-            p.g = g
-            p.b = b
+        i = self._cur_pixel_index
+        p = self.display.get_display()[i]
+        r = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 0 * self._shift) / self._len) + 1)) + 1
+        g = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 1 * self._shift) / self._len) + 1)) + 1
+        b = (self._amp * (math.cos(2 * math.pi * self._f * (i - self._phase - 2 * self._shift) / self._len) + 1)) + 1
+        p.r = r
+        p.g = g
+        p.b = b
         self._x = self._x + 1
         self._phase = self._phase + 1
+        self._cur_pixel_index = (i + 1) % self._len
