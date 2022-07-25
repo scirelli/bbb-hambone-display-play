@@ -24,8 +24,7 @@ class FileWriter(Writer):
         return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback) -> None:
-        if self.file:
-            self.file.close()
+        self.file.close()
 
     def __del__(self) -> None:
         if self.file:

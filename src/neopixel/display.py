@@ -52,8 +52,8 @@ class NeoPixelDisplay(DisplayDrawer, DisplayClearer):
         self.pixels: list[Color] = [Color()] * length
         self._writer = writer
 
-    def clear(self):
-        for pixel in range(self.pixels):
+    def clear(self) -> None:
+        for pixel in self.pixels:
             pixel.r = pixel.g = pixel.b = 0.0
 
     def get_display(self) -> list[Color]:

@@ -1,0 +1,12 @@
+{
+  "iterations": 1000,
+  "PRU": {
+    "file": "/dev/rpmsg_pru30"
+  },
+  "animations": [
+    {
+      "type": "Rainbow",
+      "config": {}
+    }
+  ]
+}
