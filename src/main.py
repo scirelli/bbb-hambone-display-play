@@ -13,15 +13,14 @@ logging.basicConfig(level=logging.DEBUG)
 
 LED_COUNT = 42
 DEFAULT_CONFIG = {
-    'iterations': 1000,
-    'PRU': {
-        'file': "/tmp/pru_output.bin",
+    "iterations": 1000,
+    "PRU": {
+        "file": "/tmp/pru_output.bin",
     },
-    'animations': [
+    "animations": [
         {
-            'type': 'Rainbow',
-            'config': {
-            },
+            "type": "Rainbow",
+            "config": {},
         },
     ],
 }
@@ -29,16 +28,20 @@ DEFAULT_CONFIG = {
 
 def main(config: Dict[str, Any]) -> None:
     config = defaultdict(dict, {**DEFAULT_CONFIG, **config})
-    iterations = int(config.get('iterations', 1000))
-    loaded_animations = []
+    iterations = int(config.get("iterations", 1000))
+    loaded_animations: list[animations.Animator] = []
 
-    with PRUDeviceWriter(config.get('PRU', {}).get('file', '')) as f:
+    with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
         display = NeoPixelDisplay(LED_COUNT, f)
 
-        for a in config.get('animations', []):
-            anim_config = a.get('config', {})
-            anim_config['display'] = display
-            loaded_animations.append(animations.__dict__.get(a.get('type', animations.FailAnimator))(**anim_config))
+        for a in config.get("animations", []):
+            anim_config = a.get("config", {})
+            anim_config["display"] = display
+            loaded_animations.append(
+                animations.__dict__.get(
+                    a.get("type", "FailAnimator"), animations.FailAnimator
+                )(**anim_config)
+            )
 
         for _ in range(iterations):
             for a in loaded_animations:
@@ -68,6 +71,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        logger.debug(main(load(args.config)))
+        main(load(args.config))
     except decoder.JSONDecodeError:
         logger.warning("Unable to parse config file.")

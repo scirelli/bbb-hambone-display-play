@@ -18,7 +18,9 @@ def json_translate(obj: Any) -> Union[Dict[str, Any], None]:
     return None
 
 
-def create_logger(name: str, log_level: int = log_level) -> Logger:  # pylint: disable=redefined-outer-name
+def create_logger(
+    name: str, log_level: int = log_level
+) -> Logger:  # pylint: disable=redefined-outer-name
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
     logger.propagate = False
@@ -26,7 +28,9 @@ def create_logger(name: str, log_level: int = log_level) -> Logger:  # pylint: d
     return logger
 
 
-def get_json_logger(name: str, log_level: int = log_level) -> Logger:  # pylint: disable=redefined-outer-name
+def get_json_logger(
+    name: str, log_level: int = log_level
+) -> Logger:  # pylint: disable=redefined-outer-name
     """
     Fix multiple logging with
     logging.basicConfig(level=log_level, handlers=[_create_log_handler()])
@@ -39,7 +43,7 @@ def get_json_logger(name: str, log_level: int = log_level) -> Logger:  # pylint:
     return logger
 
 
-def _create_log_handler() -> logging.StreamHandler:
+def _create_log_handler() -> logging.StreamHandler:  # type: ignore
     json_handler = logging.StreamHandler()
     formatter = jsonlogger.JsonFormatter(
         json_default=json_translate,

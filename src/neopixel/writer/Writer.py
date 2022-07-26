@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from types import TracebackType
+from typing import Optional, Type
 
 
 class Writer(ABC):
@@ -15,5 +17,10 @@ class Writer(ABC):
         pass
 
     @abstractmethod
-    def __exit__(self, exception_type, exception_value, exception_traceback) -> None:
+    def __exit__(
+        self,
+        exception_type: Optional[Type[BaseException]],
+        exception_value: Optional[BaseException],
+        exception_traceback: Optional[TracebackType],
+    ) -> None:
         pass

@@ -1,14 +1,13 @@
-from time import time
+from neopixel.display import Display
 
 from ..Animator import Animator
-from ..Color import Color
 from .Ball import Ball
 
 
 class BounceAnimation(Animator):
-    def __init__(self, screen: list[Color]):
-        self.ball: Ball = Ball()
-        self.screen: list[Color] = screen
+    def __init__(self, display: Display):
+        self._ball: Ball = Ball()
+        self._screen = display
 
-    def animate(self, elapsedTime: float):
-        print(elapsedTime)
+    def animate(self) -> None:
+        pass

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from itertools import chain
+
+# from itertools import chain
 from typing import ClassVar
 
 from neopixel.writer.Writer import Writer
@@ -19,7 +20,7 @@ class Color:
 
 
 @dataclass
-class Pixel():
+class Pixel:
     r: int = 0
     g: int = 0
     b: int = 0
@@ -43,7 +44,7 @@ class DisplayClearer(Display, Clearer):
 
 class DisplayDrawer(ABC):
     @abstractmethod
-    def draw(self, display: Display) -> None:
+    def draw(self) -> None:
         pass
 
 
@@ -59,7 +60,7 @@ class NeoPixelDisplay(DisplayDrawer, DisplayClearer):
     def get_display(self) -> list[Color]:
         return self.pixels
 
-    def draw(self, display: Display = None) -> None:
+    def draw(self) -> None:
         out = []
         # self._writer.write(bytearray(chain.from_iterable([[int(x.r), int(x.g), int(x.b)] for x in self.get_display()])))
         for c in self.get_display():

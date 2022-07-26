@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.2.0
+  rev: v4.3.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -26,13 +26,13 @@ repos:
   - id: isort
 
 - repo: https://github.com/psf/black
-  rev: 22.3.0 # Replace by any tag/version: https://github.com/psf/black/tags
+  rev: 22.6.0 # Replace by any tag/version: https://github.com/psf/black/tags
   hooks:
     - id: black
       language_version: python3 # Should be a command that runs python3.6+
 
 - repo: https://github.com/asottile/pyupgrade
-  rev: v2.32.0
+  rev: v2.37.3
   hooks:
   - id: pyupgrade
     args: ['--py38-plus', '--keep-runtime-typing']
