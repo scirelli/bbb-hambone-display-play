@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from typing import Any, Dict
 
-from neopixel.animations.fades.rainbow import Rainbow
+from neopixel import animations
 from neopixel.display import NeoPixelDisplay
 from neopixel.logger import create_logger
 from neopixel.writer.PRUDeviceWriter import PRUDeviceWriter
@@ -30,13 +30,19 @@ DEFAULT_CONFIG = {
 def main(config: Dict[str, Any]) -> None:
     config = defaultdict(dict, {**DEFAULT_CONFIG, **config})
     iterations = int(config.get('iterations', 1000))
+    loaded_animations = []
 
     with PRUDeviceWriter(config.get('PRU', {}).get('file', '')) as f:
         display = NeoPixelDisplay(LED_COUNT, f)
-        a = Rainbow(display)
+
+        for a in config.get('animations', []):
+            anim_config = a.get('config', {})
+            anim_config['display'] = display
+            loaded_animations.append(animations.__dict__.get(a.get('type', animations.FailAnimator))(**anim_config))
 
         for _ in range(iterations):
-            a.animate()
+            for a in loaded_animations:
+                a.animate()
             display.draw()
 
         display.clear()
