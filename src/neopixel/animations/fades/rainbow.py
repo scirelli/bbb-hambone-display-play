@@ -17,7 +17,6 @@ class Rainbow(Animator):
         self._f = 44
         self._shift = 3
         self._phase = 0
-        self._x = 0
         self._len = len(display.pixels)
         self._max_animation_time_ns = 10 * NANO_SEC_IN_SEC
         self._total_time_ns = 0
@@ -37,7 +36,6 @@ class Rainbow(Animator):
             p.r = r
             p.g = g
             p.b = b
-        self._x = self._x + 1
         self._phase = self._phase + 1
 
 
@@ -48,7 +46,6 @@ class RainbowB(Animator):
         self._f = 44
         self._shift = 3
         self._phase = 0
-        self._x = 0
         self._len = len(display.pixels)
         self._cur_pixel_index = 0
         self._max_animation_time_ns = 10 * NANO_SEC_IN_SEC
@@ -70,6 +67,5 @@ class RainbowB(Animator):
         p.r = r
         p.g = g
         p.b = b
-        self._x = self._x + 1
         self._phase = self._phase + 1
         self._cur_pixel_index = (i + 1) % self._len

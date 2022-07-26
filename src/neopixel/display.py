@@ -49,7 +49,7 @@ class DisplayDrawer(ABC):
 
 class NeoPixelDisplay(DisplayDrawer, DisplayClearer):
     def __init__(self, length: int, writer: Writer):
-        self.pixels: list[Color] = [Color()] * length
+        self.pixels: list[Color] = [Color() for _ in range(length)]
         self._writer = writer
 
     def clear(self) -> None:
