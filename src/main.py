@@ -2,6 +2,7 @@
 #  pylint: disable=wrong-import-order
 import logging
 from collections import defaultdict
+from time import perf_counter_ns
 from typing import Any, Dict
 
 from neopixel import animations
@@ -30,6 +31,7 @@ def main(config: Dict[str, Any]) -> None:
     config = defaultdict(dict, {**DEFAULT_CONFIG, **config})
     iterations = int(config.get("iterations", 1000))
     loaded_animations: list[animations.Animator] = []
+    start_time: int = perf_counter_ns()
 
     with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
         display = NeoPixelDisplay(LED_COUNT, f)
@@ -40,12 +42,13 @@ def main(config: Dict[str, Any]) -> None:
             loaded_animations.append(
                 animations.__dict__.get(
                     a.get("type", "FailAnimator"), animations.FailAnimator
-                )(**anim_config)
+                )(anim_config)
             )
 
         for _ in range(iterations):
+            start_time = perf_counter_ns()
             for a in loaded_animations:
-                a.animate()
+                a.animate(perf_counter_ns() - start_time)
             display.draw()
 
         display.clear()

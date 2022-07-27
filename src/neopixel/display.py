@@ -48,6 +48,17 @@ class DisplayDrawer(ABC):
         pass
 
 
+class NullDisplay(DisplayDrawer, DisplayClearer):
+    def clear(self) -> None:
+        pass
+
+    def get_display(self) -> list[Color]:
+        return []
+
+    def draw(self) -> None:
+        pass
+
+
 class NeoPixelDisplay(DisplayDrawer, DisplayClearer):
     def __init__(self, length: int, writer: Writer):
         self.pixels: list[Color] = [Color() for _ in range(length)]

@@ -6,7 +6,7 @@ from neopixel.display import Color
 
 @dataclass
 class Ball:
-    position: Point = Point(0, 0)
+    position: Point = Point()
     vel: Point = Point()
     color: Color = Color()
     elasticity: float = 1
