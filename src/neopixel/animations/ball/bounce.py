@@ -99,14 +99,13 @@ class BounceMultiple(Animator):
 
     def animate(self, dt_ns: int) -> None:
         for ball in self._balls:
-            self._screen[int(ball.position.y)].r = max(
-                self._screen[int(ball.position.y)].r - ball.color.r, 0
-            )
-            self._screen[int(ball.position.y)].g = max(
-                self._screen[int(ball.position.y)].g - ball.color.g, 0
-            )
-            self._screen[int(ball.position.y)].b = max(
-                self._screen[int(ball.position.y)].b - ball.color.b, 0
+            self._draw(
+                ball,
+                Color(
+                    max(self._screen[int(ball.position.y)].r - ball.color.r, 0),
+                    max(self._screen[int(ball.position.y)].g - ball.color.g, 0),
+                    max(self._screen[int(ball.position.y)].b - ball.color.b, 0),
+                ),
             )
 
             dt_s = dt_ns * SEC_IN_NANO_SEC
@@ -116,15 +115,18 @@ class BounceMultiple(Animator):
             if ball.position.y >= self._ground.y:
                 ball.position.y = self._ground.y - 1
                 ball.vel.y = -ball.vel.y * ball.elasticity
-            elif ball.position.y < 0:
-                return
 
-            self._screen[int(ball.position.y)].r = min(
-                self._screen[int(ball.position.y)].r + ball.color.r, 255
+            self._draw(
+                ball,
+                Color(
+                    min(self._screen[int(ball.position.y)].r + ball.color.r, 255),
+                    min(self._screen[int(ball.position.y)].g + ball.color.g, 255),
+                    min(self._screen[int(ball.position.y)].b + ball.color.b, 255),
+                ),
             )
-            self._screen[int(ball.position.y)].g = min(
-                self._screen[int(ball.position.y)].g + ball.color.g, 255
-            )
-            self._screen[int(ball.position.y)].b = min(
-                self._screen[int(ball.position.y)].b + ball.color.b, 255
-            )
+
+    def _draw(self, ball: Ball, color: Color) -> None:
+        if ball.position.y >= 0 and ball.position.y < self._ground.y:
+            self._screen[int(ball.position.y)].r = color.r
+            self._screen[int(ball.position.y)].g = color.g
+            self._screen[int(ball.position.y)].b = color.b
