@@ -22,6 +22,7 @@ DEFAULT_CONFIG = {
     "animations": [
         {
             "type": "Rainbow",
+            "totalAnimationTimeSeconds": -1,
             "config": {},
         },
     ],
@@ -34,7 +35,7 @@ def main(config: Dict[str, Any]) -> None:
     totalSimulationTimeSeconds: float = float(
         config.get("totalSimulationTimeSeconds", 10)
     )
-    loaded_animations: list[animations.Animator] = []
+    loaded_animations: list[dict[str, Any]] = []
     dt_ns: int = 0
     start_time_ns: int = 0
     currentTime: float = 0
@@ -46,16 +47,23 @@ def main(config: Dict[str, Any]) -> None:
         for a in config.get("animations", []):
             anim_config = a.get("config", {})
             anim_config["display"] = display
+            anim_config["totalAnimationTimeSeconds"] = float(
+                anim_config.get("totalAnimationTimeSeconds", -1.0)
+            )
             loaded_animations.append(
-                animations.__dict__.get(
-                    a.get("type", "FailAnimator"), animations.FailAnimator
-                )(anim_config)
+                {
+                    "animation": animations.__dict__.get(
+                        a.get("type", "FailAnimator"), animations.FailAnimator
+                    )(anim_config),
+                    "config": anim_config,
+                }
             )
 
         while currentTime < totalSimulationTimeSeconds:
             start_time_ns = perf_counter_ns()
             for a in loaded_animations:
-                a.animate(dt_ns)
+                if currentTime <= a["config"]["totalAnimationTimeSeconds"]:
+                    a["animation"].animate(dt_ns)
             display.draw()
             cnt = cnt + 1
             if iterations != -1 and cnt >= iterations:
