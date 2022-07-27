@@ -44,7 +44,7 @@ class BounceSimple(Animator):
                 float(config.get("color", {}).get("b", 0)),
             ),
         )
-        self._ground: Point = Point(0, len(self._screen))
+        self._ground: Point = Point(0, len(self._screen) - 1)
         self._acc: float = -1 * BounceSimple.GRAVITY
 
     def animate(self, dt_ns: int) -> None:
@@ -57,7 +57,7 @@ class BounceSimple(Animator):
         self._ball.vel.y = self._ball.vel.y + (0.5 * self._acc * dt_s)
         self._ball.position.y = self._ball.position.y + (self._ball.vel.y * dt_s)
         if self._ball.position.y >= self._ground.y:
-            self._ball.position.y = self._ground.y - 1
+            self._ball.position.y = self._ground.y
             self._ball.vel.y = -self._ball.vel.y * self._ball.elasticity
         elif self._ball.position.y < 0:
             self._ball.position.y = 0
