@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from .Animator import Animator, FailAnimator, NotAnAnimator, NullAnimator
-from .ball.bounce import BounceAnimation
+from .ball.bounce import BounceSimple
 from .fades.rainbow import Rainbow, RainbowB
 from .Point import Point
 
@@ -13,5 +13,5 @@ __all__: Tuple[str, ...] = (
     "Point",
     "Rainbow",
     "RainbowB",
-    "BounceAnimation",
+    "BounceSimple",
 )

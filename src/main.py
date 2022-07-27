@@ -14,7 +14,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 LED_COUNT = 42
 DEFAULT_CONFIG = {
-    "iterations": 1000,
+    "iterations": -1,
+    "totalSimulationTimeSeconds": 10,
     "PRU": {
         "file": "/tmp/pru_output.bin",
     },
@@ -29,9 +30,15 @@ DEFAULT_CONFIG = {
 
 def main(config: Dict[str, Any]) -> None:
     config = defaultdict(dict, {**DEFAULT_CONFIG, **config})
-    iterations = int(config.get("iterations", 1000))
+    iterations: int = int(config.get("iterations", -1))
+    totalSimulationTimeSeconds: float = float(
+        config.get("totalSimulationTimeSeconds", 10)
+    )
     loaded_animations: list[animations.Animator] = []
-    start_time: int = perf_counter_ns()
+    dt_ns: int = 0
+    start_time_ns: int = 0
+    currentTime: float = 0
+    cnt: int = 0
 
     with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
         display = NeoPixelDisplay(LED_COUNT, f)
@@ -45,11 +52,17 @@ def main(config: Dict[str, Any]) -> None:
                 )(anim_config)
             )
 
-        for _ in range(iterations):
-            start_time = perf_counter_ns()
+        while currentTime < totalSimulationTimeSeconds:
+            start_time_ns = perf_counter_ns()
             for a in loaded_animations:
-                a.animate(perf_counter_ns() - start_time)
+                a.animate(dt_ns)
             display.draw()
+            cnt = cnt + 1
+            if iterations != -1 and cnt >= iterations:
+                break
+
+            dt_ns = perf_counter_ns() - start_time_ns
+            currentTime = currentTime + (dt_ns / 1e9)  # 1ns/1e9 s
 
         display.clear()
         display.draw()
