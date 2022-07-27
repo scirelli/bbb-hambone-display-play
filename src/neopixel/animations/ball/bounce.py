@@ -99,9 +99,15 @@ class BounceMultiple(Animator):
 
     def animate(self, dt_ns: int) -> None:
         for ball in self._balls:
-            self._screen[int(ball.position.y)].r = self._screen[
-                int(ball.position.y)
-            ].g = self._screen[int(ball.position.y)].b = 0
+            self._screen[int(ball.position.y)].r = max(
+                self._screen[int(ball.position.y)].r - ball.color.r, 0
+            )
+            self._screen[int(ball.position.y)].g = max(
+                self._screen[int(ball.position.y)].g - ball.color.g, 0
+            )
+            self._screen[int(ball.position.y)].b = max(
+                self._screen[int(ball.position.y)].b - ball.color.b, 0
+            )
 
             dt_s = dt_ns * SEC_IN_NANO_SEC
             # s(t) = s0 + v0*t + 1/2 * a * t^2
