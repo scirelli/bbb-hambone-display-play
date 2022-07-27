@@ -60,7 +60,7 @@ class BounceSimple(Animator):
             self._ball.position.y = self._ground.y
             self._ball.vel.y = -self._ball.vel.y * self._ball.elasticity
         elif self._ball.position.y < 0:
-            self._ball.position.y = 0
+            return
 
         self._screen[int(self._ball.position.y)].r = self._ball.color.r
         self._screen[int(self._ball.position.y)].g = self._ball.color.g
@@ -117,7 +117,7 @@ class BounceMultiple(Animator):
                 ball.position.y = self._ground.y - 1
                 ball.vel.y = -ball.vel.y * ball.elasticity
             elif ball.position.y < 0:
-                ball.position.y = 0
+                return
 
             self._screen[int(ball.position.y)].r = min(
                 self._screen[int(ball.position.y)].r + ball.color.r, 255
