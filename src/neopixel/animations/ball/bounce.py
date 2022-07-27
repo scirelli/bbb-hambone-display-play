@@ -38,7 +38,6 @@ class BounceSimple(Animator):
             self._ball.vel.y = -self._ball.vel.y * self._ball.elasticity
         elif self._ball.position.y < 0:
             self._ball.position.y = 0
-            self._ball.vel.y = -self._ball.vel.y * self._ball.elasticity
 
         self._screen[int(self._ball.position.y)].r = self._ball.color.r
         self._screen[int(self._ball.position.y)].g = self._ball.color.g
