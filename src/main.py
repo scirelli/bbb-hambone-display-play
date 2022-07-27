@@ -48,7 +48,7 @@ def main(config: Dict[str, Any]) -> None:
             anim_config = a.get("config", {})
             anim_config["display"] = display
             anim_config["totalAnimationTimeSeconds"] = float(
-                anim_config.get("totalAnimationTimeSeconds", -1.0)
+                anim_config.get("totalAnimationTimeSeconds", totalSimulationTimeSeconds)
             )
             loaded_animations.append(
                 {
