@@ -113,6 +113,12 @@ class BounceMultiple(Animator):
             elif ball.position.y < 0:
                 ball.position.y = 0
 
-            self._screen[int(ball.position.y)].r = ball.color.r
-            self._screen[int(ball.position.y)].g = ball.color.g
-            self._screen[int(ball.position.y)].b = ball.color.b
+            self._screen[int(ball.position.y)].r = min(
+                self._screen[int(ball.position.y)].r + ball.color.r, 255
+            )
+            self._screen[int(ball.position.y)].g = min(
+                self._screen[int(ball.position.y)].g + ball.color.g, 255
+            )
+            self._screen[int(ball.position.y)].b = min(
+                self._screen[int(ball.position.y)].b + ball.color.b, 255
+            )
