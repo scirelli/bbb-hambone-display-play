@@ -28,7 +28,7 @@ class Pixel:
 
 class Display(ABC):
     @abstractmethod
-    def get_display(self) -> list[Color]:
+    def get_display(self) -> tuple[Color, ...]:
         pass
 
 
@@ -52,8 +52,8 @@ class NullDisplay(DisplayDrawer, DisplayClearer):
     def clear(self) -> None:
         pass
 
-    def get_display(self) -> list[Color]:
-        return []
+    def get_display(self) -> tuple[Color, ...]:
+        return ()
 
     def draw(self) -> None:
         pass
@@ -61,18 +61,20 @@ class NullDisplay(DisplayDrawer, DisplayClearer):
 
 class NeoPixelDisplay(DisplayDrawer, DisplayClearer):
     def __init__(self, length: int, writer: Writer):
-        self.pixels: list[Color] = [Color() for _ in range(length)]
+        self.pixels: tuple[Color, ...] = tuple(
+            Color() for _ in range(length)
+        )  # pylint: disable=consider-using-generator
         self._writer = writer
 
     def clear(self) -> None:
         for pixel in self.pixels:
             pixel.r = pixel.g = pixel.b = 0.0
 
-    def get_display(self) -> list[Color]:
+    def get_display(self) -> tuple[Color, ...]:
         return self.pixels
 
     def draw(self) -> None:
-        out = []
+        out: list[int] = []
         # self._writer.write(bytearray(chain.from_iterable([[int(x.r), int(x.g), int(x.b)] for x in self.get_display()])))
         for c in self.get_display():
             out.extend([int(c.r), int(c.g), int(c.b)])

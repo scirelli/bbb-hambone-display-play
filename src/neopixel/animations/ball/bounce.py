@@ -70,22 +70,25 @@ class BounceSimple(Animator):
 class BounceMultiple(Animator):
     """
     Simple multiple bouncing "ball" animations.
-    "balls":[{
-        "elasticity": 1,
-        "color": {
-            "r": 0,
-            "g": 0,
-            "b": 0
-        },
-        "vel": {
-            "x": 0,
-            "y": 0
-        },
-        "position": {
-            "x": 0,
-            "y": 0
-        }
-    }]
+    {
+        "acceleration": -9.81,
+        "balls":[{
+            "elasticity": 1,
+            "color": {
+                "r": 0,
+                "g": 0,
+                "b": 0
+            },
+            "vel": {
+                "x": 0,
+                "y": 0
+            },
+            "position": {
+                "x": 0,
+                "y": 0
+            }
+        }]
+    }
     """
 
     GRAVITY: float = -9.81  # -9.81 m / 1 s^2
@@ -95,7 +98,7 @@ class BounceMultiple(Animator):
         self._screen: list[Color] = config.get("display", NullDisplay()).get_display()
         self._ground: Point = Point(0, len(self._screen))
         self._balls: list[Ball] = [createBall(b) for b in balls]
-        self._acc: float = -1 * BounceSimple.GRAVITY
+        self._acc: float = float(config.get("acceleration", -1 * BounceSimple.GRAVITY))
 
     def animate(self, dt_ns: int) -> None:
         for ball in self._balls:

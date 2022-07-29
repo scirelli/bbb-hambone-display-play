@@ -43,6 +43,8 @@ def main(config: Dict[str, Any]) -> None:
 
     with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
         display = NeoPixelDisplay(LED_COUNT, f)
+        display.clear()
+        display.draw()
 
         for a in config.get("animations", []):
             anim_config = a.get("config", {})
