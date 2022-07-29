@@ -63,14 +63,11 @@ char payload[RPMSG_BUF_SIZE];
 
 #define START 0                 // Segment index
 #define END 1                   // Segment index
-#define SEGMENT_ONE 0
-#define SEGMENT_TWO 1
-#define SEGMENT_THREE 2
+#define SEGMENT_INDEX_START 120
+#define SEGMENT_INDEX_END 122
 #define CLOCK_TICK_MS 10        // Segment max clock tick
 
 #define CODE_DRAW -1
-#define CODE_COLOR_SEGMENT_ONE 127
-#define CODE_COLOR_SEGMENT_TWO 128
 
 #define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))
 #define DELTA_MS(start, stop) (DELTA_US((start), (stop))/1000)
@@ -94,13 +91,14 @@ void main(void)
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
-	uint8_t r, g, b;
-	int i;
+	uint8_t r, g, b, d_r, d_g, d_b;
+	int i, k=0;
     uint32_t colr;
+	int colorNeedsFade = 0;
 
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
-		color[i] = 0x010000;
+		color[i] = destColor[i] = 0x010000;
 	}
 
 	/* Allow OCP master port access by the PRU so the PRU can read external memories */
@@ -139,17 +137,38 @@ void main(void)
                 colr = (g<<16)|(r<<8)|b;	// String wants GRB
 
 			    // Update the array, but don't write it out.
-			    if((index >=0) & (index < STR_LEN)) {
-                    color[index] = colr;
-                }else {
+			    if((index >= 0) & (index < STR_LEN)) {
+                    color[index] = destColor[index] = colr;
+                } else if (index >= SEGMENT_INDEX_START && index <= SEGMENT_INDEX_END){
+                    for(i=segments[index - SEGMENT_INDEX_START][START]; i<=segments[index - SEGMENT_INDEX_START][END]; i++){
+                        destColor[i] = colr;
+                    }
+                }
+                else {
                     switch(index) {
                     case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
-                        drawToLEDs(); // Output the string
-                        break;
-                    case CODE_COLOR_SEGMENT_ONE:   // Index = CODE_COLOR_SEGMENT_ONE
-                        for(int i=segments[SEGMENT_ONE][START]; i<segments[SEGMENT_ONE][END]; i++){
-                            color[i] = colr;
-                        }
+                        //drawToLEDs(); // Output the string
+            			do {
+            			    colorNeedsFade = 0;
+                			for(k=0; k < STR_LEN; k++){
+                			    if(color[k] == destColor[k]) continue;
+                			    colorNeedsFade = 1;
+                			    b =  color[k] & 0x000000FF;
+                			    r = (color[k] & 0x0000FF00)>>8;
+                			    g = (color[k] & 0x00FF0000) >> 16;
+
+                			    d_b =  destColor[k] & 0x000000FF;
+                			    d_r = (destColor[k] & 0x0000FF00)>>8;
+                			    d_g = (destColor[k] & 0x00FF0000) >> 16;
+
+                			    if(b < d_b) b++; else if(b > d_b) b--;
+                			    if(r < d_r) r++; else if(r > d_r) r--;
+                			    if(g < d_g) g++; else if(g > d_g) g--;
+
+                                color[k] = (g<<16)|(r<<8)|b;
+                			}
+                			drawToLEDs();
+            			}while(colorNeedsFade);
                         break;
                     }
                 }
@@ -184,7 +203,7 @@ void drawToLEDs(void){
     __delay_cycles(resetCycles);
 
     // Wait
-    __delay_cycles(SPEED);
+    //__delay_cycles(SPEED);
 }
 
 void updateSegments(void){
