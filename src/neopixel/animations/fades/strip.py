@@ -98,7 +98,7 @@ class StripFadeTest(Animator):
                 r, g, b = s.min_color.r, s.min_color.g, s.min_color.b
 
             self._draw(s.start, s.end, [r, g, b])
-            self._iterations += 1
+        self._iterations += 1
 
     def _draw(self, start: int, end: int, color: list[float]) -> None:
         for i in range(start, end + 1):
