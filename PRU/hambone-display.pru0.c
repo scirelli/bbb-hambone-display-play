@@ -104,43 +104,6 @@ void main(void)
 			/* Clear the event status */
 			CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 			/* Receive all available messages, multiple messages can be sent per kick */
-            /** https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/tree/include/pru_rpmsg.h?id=aa9606013059eb8728bcc1165c5032f0589469e0
-            * Summary		:	pru_rpmsg_receive receives a message, if available, from
-            * 					the ARM host.
-            *
-            * Parameters	:	transport: a pointer to the transport layer from which the
-            * 							   message should be received
-            * 					src: a pointer that is populated with the source address
-            * 						 where the message originated
-            * 					dst: a pointer that is populated with the destination
-            * 						 address where the message was sent (can help determine
-            * 						 for which channel the message is intended on the PRU)
-            * 					data: a pointer that is populated with a local data buffer
-            * 						  containing the message payload
-            * 					len: a pointer that is populated with the length of the
-            * 						 message payload
-            *
-            * Description	:	pru_rpmsg_receive uses the pru_virtqueue interface to get
-            * 					an available buffer, copy the buffer into local memory,
-            * 					add the buffer as a used buffer to the vring, and then kick
-            * 					the remote processor if necessary. The src, dst, data, and
-            * 					len pointers are populated with the information about the
-            * 					message and local buffer data if the reception is
-            * 					successful.
-            *
-            * Return Value	:	Returns PRU_RPMSG_NO_BUF_AVAILABLE if there is currently no
-            * 					buffer available for receive. Returns PRU_RPMSG_INVALID_HEAD
-            * 					if the head index returned for the available buffer is
-            * 					invalid. Returns PRU_RPMSG_SUCCESS if the message is
-            * 					successfully received.
-                int16_t pru_rpmsg_receive (
-                    struct pru_rpmsg_transport 	*transport,
-                    uint16_t 					*src,
-                    uint16_t 					*dst,
-                    void 						*data,
-                    uint16_t 					*len
-                );
-            */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 			    char *ret;	// rest of payload after front character is removed
 			    int index;	// index of LED to control
