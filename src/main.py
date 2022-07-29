@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 LED_COUNT = 42
 DEFAULT_CONFIG = {
+    "ledCount": 42,
     "iterations": -1,
     "totalSimulationTimeSeconds": 10,
     "PRU": {
@@ -42,7 +43,7 @@ def main(config: Dict[str, Any]) -> None:
     cnt: int = 0
 
     with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
-        display = NeoPixelDisplay(LED_COUNT, f)
+        display = NeoPixelDisplay(int(config.get("ledCount", LED_COUNT)), f)
         display.clear()
         display.draw()
 

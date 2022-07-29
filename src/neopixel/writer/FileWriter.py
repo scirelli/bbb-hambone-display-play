@@ -12,7 +12,6 @@ class FileWriter(Writer):
 
     def __init__(self, file_path: str = ""):
         self.file: IO[bytes]
-
         if file_path == "":
             self.file = NamedTemporaryFile(
                 "ab", 0, suffix=FileWriter.FILE_SUFFIX, delete=False

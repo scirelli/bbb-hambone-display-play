@@ -21,8 +21,12 @@ class _Segment:
     cur_color: Color = field(default_factory=Color)
 
     @staticmethod
-    def createSegment(
-        start: int, end: int, max_color: dict[str, float], min_color: dict[str, float]
+    def createSegment(  # pylint: disable=dangerous-default-value
+        start: int,
+        end: int,
+        max_color: dict[str, float],
+        min_color: dict[str, float] = {},
+        cur_color: dict[str, float] = {},
     ) -> _Segment:
         return _Segment(
             int(start),
@@ -38,9 +42,9 @@ class _Segment:
                 float(max_color.get("b", 0)),
             ),
             Color(
-                float(max_color.get("r", 0)),
-                float(max_color.get("g", 0)),
-                float(max_color.get("b", 0)),
+                float(cur_color.get("r", max_color.get("r", 0))),
+                float(cur_color.get("g", max_color.get("g", 0))),
+                float(cur_color.get("b", max_color.get("b", 0))),
             ),
         )
 
@@ -68,6 +72,10 @@ class StripFadeTest(Animator):
 
     def __init__(self, config: dict[str, Any]):
         self._screen: list[Color] = config.get("display", NullDisplay()).get_display()
+        self._total_length: int = len(self._screen)
+        self._total_time_ns: int = 0
+        self._prevTime: int = perf_counter_ns()
+        self._iterations: int = 0
         self._segments: list[_Segment] = [
             _Segment.createSegment(**s)
             for s in cast(
@@ -75,10 +83,6 @@ class StripFadeTest(Animator):
                 filter(self._validSegment, config.get("segments", [])),
             )
         ]
-        self._total_length: int = len(self._screen)
-        self._total_time_ns: int = 0
-        self._prevTime: int = perf_counter_ns()
-        self._iterations: int = 0
 
     def _validSegment(self, s: dict[str, Any]) -> bool:
         start = int(s.get("start", -1))
