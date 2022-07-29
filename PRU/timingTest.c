@@ -31,10 +31,14 @@
 
 #define START 0                 // Segment index
 #define END 1                   // Segment index
+#define SEGMENT_ONE 0
+#define SEGMENT_TWO 1
+#define SEGMENT_THREE 2
 #define CLOCK_TICK_MS 10        // Segment max clock tick
 
 #define CODE_DRAW -1
 #define CODE_COLOR_SEGMENT_ONE 127
+#define CODE_COLOR_SEGMENT_TWO 128
 
 
 //This is defined in the PRU header. Mocked here.
@@ -66,9 +70,11 @@ char payload[RPMSG_BUF_SIZE];
 
 uint32_t color[STR_LEN];	    // 3 bytes each: green, red, blue
 uint32_t destColor[STR_LEN];	// 3 bytes each: green, red, blue
-size_t segment_1[2] = {0, 5},   // 6 pixels long
-       segment_2[2] = {6, 15},  // 10 pixels long
-       segment_3[2] = {16, 41}; // 26 pixels long
+size_t segments[3][2] = {
+       {0, 5},   // 6 pixels long
+       {6, 15},  // 10 pixels long
+       {16, 41} // 26 pixels long
+};
 
 
 
@@ -92,6 +98,7 @@ int main(int argc, char *argv[])
 	int i, iterations = 1;
     struct timeval stop, start;
     uint64_t delta_us;
+    uint32_t colr;
 
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
@@ -114,16 +121,20 @@ int main(int argc, char *argv[])
             g = strtol(&ret[1], NULL, 0);
             ret = strchr(&ret[1], ' ');
             b = strtol(&ret[1], NULL, 0);
+            colr = (g<<16)|(r<<8)|b;	// String wants GRB
 
             // Update the array, but don't write it out.
             if((index >=0) & (index < STR_LEN)) {
-                color[index] = (g<<16)|(r<<8)|b;	// String wants GRB
+                color[index] = colr;
             }else {
                 switch(index) {
                 case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
                     drawToLEDs(); // Output the string
                     break;
                 case CODE_COLOR_SEGMENT_ONE:   // Index = CODE_COLOR_SEGMENT_ONE
+                    for(int i=segments[SEGMENT_ONE][START]; i<segments[SEGMENT_ONE][END]; i++){
+                        color[i] = colr;
+                    }
                     break;
                 }
             }

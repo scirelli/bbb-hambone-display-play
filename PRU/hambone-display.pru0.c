@@ -59,11 +59,32 @@ char payload[RPMSG_BUF_SIZE];
 #define zeroCyclesOn	350/5
 #define zeroCyclesOff	800/5
 #define resetCycles		51000/5	// Must be at least 50u, use 51u
-#define out 1					// Bit number to output on
-
 #define SPEED 20000000/5		// Time to wait between updates
 
+#define START 0                 // Segment index
+#define END 1                   // Segment index
+#define SEGMENT_ONE 0
+#define SEGMENT_TWO 1
+#define SEGMENT_THREE 2
+#define CLOCK_TICK_MS 10        // Segment max clock tick
+
+#define CODE_DRAW -1
+#define CODE_COLOR_SEGMENT_ONE 127
+#define CODE_COLOR_SEGMENT_TWO 128
+
+#define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))
+#define DELTA_MS(start, stop) (DELTA_US((start), (stop))/1000)
+
 uint32_t color[STR_LEN];	// green, red, blue
+uint32_t destColor[STR_LEN];	// 3 bytes each: green, red, blue
+size_t segments[3][2] = {
+       {0, 5},   // 6 pixels long
+       {6, 15},  // 10 pixels long
+       {16, 41} // 26 pixels long
+};
+
+void drawToLEDs(void);
+void updateSegments(void);
 
 /*
  * main.c
@@ -73,11 +94,10 @@ void main(void)
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
-	// Select which pins to output to.  These are all on pru1_1
-	uint32_t gpio = P9_29;
-
 	uint8_t r, g, b;
-	int i, j;
+	int i;
+    uint32_t colr;
+
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
 		color[i] = 0x010000;
@@ -107,49 +127,67 @@ void main(void)
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 			    char *ret;	// rest of payload after front character is removed
 			    int index;	// index of LED to control
-			    // Input format is:  index red green blue
-			    index = atoi(payload);
+
+                // Input format is:  index red green blue
+                index = atoi(payload);
+                ret = strchr(payload, ' ');	// Skip over index
+                r = strtol(&ret[1], NULL, 0);
+                ret = strchr(&ret[1], ' ');	// Skip over r, etc.
+                g = strtol(&ret[1], NULL, 0);
+                ret = strchr(&ret[1], ' ');
+                b = strtol(&ret[1], NULL, 0);
+                colr = (g<<16)|(r<<8)|b;	// String wants GRB
+
 			    // Update the array, but don't write it out.
 			    if((index >=0) & (index < STR_LEN)) {
-			    	ret = strchr(payload, ' ');	// Skip over index
-				    r = strtol(&ret[1], NULL, 0);
-				    ret = strchr(&ret[1], ' ');	// Skip over r, etc.
-				    g = strtol(&ret[1], NULL, 0);
-				    ret = strchr(&ret[1], ' ');
-				    b = strtol(&ret[1], NULL, 0);
-
-				    color[index] = (g<<16)|(r<<8)|b;	// String wants GRB
-			    }
-			    // When index is -1, send the array to the LED string
-			    if(index == -1) {
-				    // Output the string
-					for(j=0; j<STR_LEN; j++) {
-						// Cycle through each bit
-						for(i=23; i>=0; i--) {
-							if(color[j] & (0x1<<i)) {
-								__R30 |= gpio;		// Set the GPIO pin to 1
-								__delay_cycles(oneCyclesOn-1);
-								__R30 &= ~gpio;		// Clear the GPIO pin
-								__delay_cycles(oneCyclesOff-14);
-							} else {
-								__R30 |= gpio;		// Set the GPIO pin to 1
-								__delay_cycles(zeroCyclesOn-1);
-								__R30 &= ~gpio;		// Clear the GPIO pin
-								__delay_cycles(zeroCyclesOff-14);
-							}
-						}
-					}
-					// Send Reset
-					__R30 &= ~gpio;	// Clear the GPIO pin
-					__delay_cycles(resetCycles);
-
-					// Wait
-					__delay_cycles(SPEED);
-			    }
-
+                    color[index] = colr;
+                }else {
+                    switch(index) {
+                    case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
+                        drawToLEDs(); // Output the string
+                        break;
+                    case CODE_COLOR_SEGMENT_ONE:   // Index = CODE_COLOR_SEGMENT_ONE
+                        for(int i=segments[SEGMENT_ONE][START]; i<segments[SEGMENT_ONE][END]; i++){
+                            color[i] = colr;
+                        }
+                        break;
+                    }
+                }
 			}
 		}
 	}
+}
+
+void drawToLEDs(void){
+	// Select which pins to output to.  These are all on pru1_1
+	uint32_t gpio = P9_29;
+    int i, j;
+
+    for(j=0; j<STR_LEN; j++) {
+        // Cycle through each bit
+        for(i=23; i>=0; i--) {
+            if(color[j] & (0x1<<i)) {
+                __R30 |= gpio;		// Set the GPIO pin to 1
+                __delay_cycles(oneCyclesOn-1);
+                __R30 &= ~gpio;		// Clear the GPIO pin
+                __delay_cycles(oneCyclesOff-14);
+            } else {
+                __R30 |= gpio;		// Set the GPIO pin to 1
+                __delay_cycles(zeroCyclesOn-1);
+                __R30 &= ~gpio;		// Clear the GPIO pin
+                __delay_cycles(zeroCyclesOff-14);
+            }
+        }
+    }
+    // Send Reset
+    __R30 &= ~gpio;	// Clear the GPIO pin
+    __delay_cycles(resetCycles);
+
+    // Wait
+    __delay_cycles(SPEED);
+}
+
+void updateSegments(void){
 }
 
 // Sets pinmux
