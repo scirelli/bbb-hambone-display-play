@@ -53,35 +53,37 @@ volatile register uint32_t __R31;
 
 char payload[RPMSG_BUF_SIZE];
 
-#define STR_LEN 42
-#define	oneCyclesOn		700/5	// Stay on for 700ns
-#define oneCyclesOff	600/5
-#define zeroCyclesOn	350/5
-#define zeroCyclesOff	800/5
-#define resetCycles		51000/5	// Must be at least 50u, use 51u
-#define SPEED 20000000/5		// Time to wait between updates
+#define STR_LEN             42                          // Number of pixels
+#define NANO_SEC_PER_CYCLE  5
+#define	oneCyclesOn		    700/NANO_SEC_PER_CYCLE	    // Stay on for 700ns
+#define oneCyclesOff	    600/NANO_SEC_PER_CYCLE
+#define zeroCyclesOn	    350/NANO_SEC_PER_CYCLE
+#define zeroCyclesOff   	800/NANO_SEC_PER_CYCLE
+#define resetCycles		    51000/NANO_SEC_PER_CYCLE    // Must be at least 50u, use 51u
+#define SPEED               20000000/NANO_SEC_PER_CYCLE // Time to wait between updates. This is being used to add cycles to the reset cycle. This seems to be needed for some "bleed" happens.
 
-#define START 0                 // Segment index
-#define END 1                   // Segment index
-#define SEGMENT_INDEX_START 120
-#define SEGMENT_INDEX_END 122
-#define CLOCK_TICK_MS 10        // Segment max clock tick
-
-#define CODE_DRAW -1
+#define CODE_DRAW                           -1
+#define CODE_DESTINATION_BUFFER_WRITE_START STR_LEN                 // For user defined fades
+#define CODE_DESTINATION_BUFFER_WRITE_END   (STR_LEN + STR_LEN)
+#define CODE_DEFAULT_SEGMENT_INDEX_START    120                     // For built in entire segment fades
+#define CODE_DEFAULT_SEGMENT_INDEX_END      122
 
 #define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))
 #define DELTA_MS(start, stop) (DELTA_US((start), (stop))/1000)
 
-uint32_t color[STR_LEN];	// green, red, blue
-uint32_t destColor[STR_LEN];	// 3 bytes each: green, red, blue
-size_t segments[3][2] = {
-       {0, 5},   // 6 pixels long
-       {6, 15},  // 10 pixels long
-       {16, 41} // 26 pixels long
+#define START 0                 // Segment begin index
+#define END 1                   // Segment end index
+
+uint32_t color[STR_LEN];    	// 3 bytes each: green, red, blue
+uint32_t destColor[STR_LEN];	// If dest color differs from color, transition from color to dest.
+// Default segments
+size_t segments[3][2] = {       //[x][y] x segments, y segment range: begin, end
+       {0, 5},                  // 6 pixels long
+       {6, 15},                 // 10 pixels long
+       {16, 41}                 // 26 pixels long
 };
 
 void drawToLEDs(void);
-void updateSegments(void);
 
 /*
  * main.c
@@ -98,7 +100,7 @@ void main(void)
 
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
-		color[i] = destColor[i] = 0x010000;
+		color[i] = destColor[i] = 0x000000;
 	}
 
 	/* Allow OCP master port access by the PRU so the PRU can read external memories */
@@ -136,29 +138,29 @@ void main(void)
                 b = strtol(&ret[1], NULL, 0);
                 colr = (g<<16)|(r<<8)|b;	// String wants GRB
 
-			    // Update the array, but don't write it out.
-			    if((index >= 0) & (index < STR_LEN)) {
+			    if((index >= 0) & (index < STR_LEN)) {                      // Codes to write to pixel buffer. Update the array, but don't write/draw it out.
                     color[index] = destColor[index] = colr;
-                } else if (index >= SEGMENT_INDEX_START && index <= SEGMENT_INDEX_END){
-                    for(i=segments[index - SEGMENT_INDEX_START][START]; i<=segments[index - SEGMENT_INDEX_START][END]; i++){
+			    }else if(index >= CODE_DESTINATION_BUFFER_WRITE_START && index < CODE_DESTINATION_BUFFER_WRITE_END) {   // Codes to write to destination buffer only
+                    destColor[index-CODE_DESTINATION_BUFFER_WRITE_START] = colr;
+                } else if (index >= CODE_DEFAULT_SEGMENT_INDEX_START && index <= CODE_DEFAULT_SEGMENT_INDEX_END) {  // Codes to write to default segments
+                    for(i=segments[index - CODE_DEFAULT_SEGMENT_INDEX_START][START]; i<=segments[index - CODE_DEFAULT_SEGMENT_INDEX_START][END]; i++) {
                         destColor[i] = colr;
                     }
                 }
                 else {
                     switch(index) {
                     case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
-                        //drawToLEDs(); // Output the string
             			do {
             			    colorNeedsFade = 0;
                 			for(k=0; k < STR_LEN; k++){
                 			    if(color[k] == destColor[k]) continue;
                 			    colorNeedsFade = 1;
-                			    b =  color[k] & 0x000000FF;
-                			    r = (color[k] & 0x0000FF00)>>8;
+                			    b = (color[k] & 0x000000FF) >> 0;
+                			    r = (color[k] & 0x0000FF00) >> 8;
                 			    g = (color[k] & 0x00FF0000) >> 16;
 
-                			    d_b =  destColor[k] & 0x000000FF;
-                			    d_r = (destColor[k] & 0x0000FF00)>>8;
+                			    d_b = (destColor[k] & 0x000000FF) >> 0;
+                			    d_r = (destColor[k] & 0x0000FF00) >> 8;
                 			    d_g = (destColor[k] & 0x00FF0000) >> 16;
 
                 			    if(b < d_b) b++; else if(b > d_b) b--;
@@ -167,7 +169,7 @@ void main(void)
 
                                 color[k] = (g<<16)|(r<<8)|b;
                 			}
-                			drawToLEDs();
+                            drawToLEDs(); // Output the string
             			}while(colorNeedsFade);
                         break;
                     }
@@ -203,10 +205,7 @@ void drawToLEDs(void){
     __delay_cycles(resetCycles);
 
     // Wait
-    //__delay_cycles(SPEED);
-}
-
-void updateSegments(void){
+    __delay_cycles(SPEED);
 }
 
 // Sets pinmux
