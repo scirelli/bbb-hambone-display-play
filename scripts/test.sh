@@ -10,21 +10,19 @@ function nextTest(){
     sleep 2
     clearDisplay
     test=$((test + 1))
+    echo
+    echo
+    echo
+    echo "Test $test"
 }
 
 
 nextTest
-
-
-echo "Test $test"
 echo 'All red'
 setAll 255 0 0
 
 
 nextTest
-
-
-echo "Test $test"
 echo 'Segment test'
 echo '1=RED, 2=GREEN, 3=BLUE'
 echo "121 255 0 0" > "$PRU_SYSFS"
@@ -41,4 +39,4 @@ echo "123 0 255 0" > "$PRU_SYSFS"
 echo -1 0 0 0 > "$PRU_SYSFS"
 
 
-nextTest
+# nextTest
