@@ -16,6 +16,9 @@ function nextTest(){
     echo "Test $test"
 }
 
+function end(){
+    clearDisplay
+}
 
 nextTest
 echo 'All red'
@@ -40,3 +43,5 @@ echo -1 0 0 0 > "$PRU_SYSFS"
 
 
 # nextTest
+
+end
