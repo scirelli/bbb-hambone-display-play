@@ -67,9 +67,9 @@ char payload[RPMSG_BUF_SIZE];
 
 #define CODE_DRAW                                   -1
 #define CODE_CLEAR                                  -2
-#define CODE_DESTINATION_BUFFER_WRITE_START_INDEX   STR_LEN                 // For user defined fades
-#define CODE_DESTINATION_BUFFER_WRITE_END_INDEX     (STR_LEN + (STR_LEN -1))
-#define CODE_DEFAULT_SEGMENT_START_INDEX            120                     // For built in entire segment fades
+#define CODE_DESTINATION_BUFFER_WRITE_START_INDEX   STR_LEN                                                             // For user defined fades
+#define CODE_DESTINATION_BUFFER_WRITE_END_INDEX     (STR_LEN + (STR_LEN - 1))
+#define CODE_DEFAULT_SEGMENT_START_INDEX            (CODE_DESTINATION_BUFFER_WRITE_END_INDEX + 1)                         // For built in entire segment fades
 #define CODE_DEFAULT_SEGMENT_END_INDEX              (CODE_DEFAULT_SEGMENT_START_INDEX + (PREDEFINED_SEGMENT_COUNT - 1))
 
 #define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))

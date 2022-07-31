@@ -32,7 +32,7 @@ echo '1=RED, 2=GREEN, 3=BLUE'
 echo "121 255 0 0" > "$PRU_SYSFS"
 echo "122 0 255 0" > "$PRU_SYSFS"
 echo "123 0 0 255" > "$PRU_SYSFS"
-echo -1 0 0 0 > "$PRU_SYSFS"
+draw
 
 echo 'Transition To: 1=BLUE, 2=RED, 3=GREEN'
 echo 'After 1 second'
@@ -40,9 +40,19 @@ sleep 1
 echo "121 0 0 255" > "$PRU_SYSFS"
 echo "122 255 0 0" > "$PRU_SYSFS"
 echo "123 0 255 0" > "$PRU_SYSFS"
-echo -1 0 0 0 > "$PRU_SYSFS"
+draw
 
 
-# nextTest
+nextTest
+echo 'User defined segments (UDS). UDS use fading.'
+for (( i=0; i<=LED_COUNT; i++ )); do
+    index=$((i + LED_COUNT))
+    echo "($i, $index) on"
+    echo "$index 255 0 0" > "$PRU_SYSFS"
+    draw
+    sleep 1
+    echo "($i, $index) off"
+    echo "$index 0 0 0" > "$PRU_SYSFS"
+done
 
 end

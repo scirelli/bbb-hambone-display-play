@@ -8,6 +8,10 @@ function setSegment() {
     echo -1 0 0 0 > "$PRU_SYSFS"
 }
 
+function draw() {
+    echo -1 0 0 0 > "$PRU_SYSFS"
+}
+
 function setAll() {
     r=$1
     g=$2
@@ -16,7 +20,7 @@ function setAll() {
             echo "$i $r $g $b" > "$PRU_SYSFS"
     done
 
-    echo -1 0 0 0 > "$PRU_SYSFS"
+    draw
 }
 
 function clearDisplay() {
@@ -28,5 +32,5 @@ function clearDisplay_old() {
 		echo "$i 0 0 0" > "$PRU_SYSFS"
 	done
 
-	echo -1 0 0 0 > "$PRU_SYSFS"
+    draw
 }
