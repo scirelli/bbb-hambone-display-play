@@ -233,7 +233,7 @@ void drawToLEDs(void){
 bool doFade(void) {
 	uint8_t r, g, b, d_r, d_g, d_b;
     int i;
-    bool = colorNeedsFade = false;
+    bool colorNeedsFade = false;
     for(i=0; i < STR_LEN; i++){
         if(color[i] == destColor[i]) continue;
         colorNeedsFade = true;
