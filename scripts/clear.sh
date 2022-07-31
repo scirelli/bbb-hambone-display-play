@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-for i in {0..42}; do
-        echo "$i 0 0 0" > /dev/rpmsg_pru30
-done
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-echo -1 0 0 0 > /dev/rpmsg_pru30
+source "$SCRIPT_DIR/variables.sh"
+source "$SCRIPT_DIR/utils.sh"
+
+clearDisplay
