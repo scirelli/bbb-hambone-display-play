@@ -65,12 +65,12 @@ char payload[RPMSG_BUF_SIZE];
 
 #define PREDEFINED_SEGMENT_COUNT 4
 
-#define CODE_DRAW                           -1
-#define CODE_CLEAR                          -2
-#define CODE_DESTINATION_BUFFER_WRITE_START STR_LEN                 // For user defined fades
-#define CODE_DESTINATION_BUFFER_WRITE_END   (STR_LEN + STR_LEN)
-#define CODE_DEFAULT_SEGMENT_INDEX_START    120                     // For built in entire segment fades
-#define CODE_DEFAULT_SEGMENT_INDEX_END      (CODE_DEFAULT_SEGMENT_INDEX_START + (PREDEFINED_SEGMENT_COUNT - 1))
+#define CODE_DRAW                                   -1
+#define CODE_CLEAR                                  -2
+#define CODE_DESTINATION_BUFFER_WRITE_START_INDEX   STR_LEN                 // For user defined fades
+#define CODE_DESTINATION_BUFFER_WRITE_END_INDEX     (STR_LEN + (STR_LEN -1))
+#define CODE_DEFAULT_SEGMENT_START_INDEX            120                     // For built in entire segment fades
+#define CODE_DEFAULT_SEGMENT_END_INDEX              (CODE_DEFAULT_SEGMENT_START_INDEX + (PREDEFINED_SEGMENT_COUNT - 1))
 
 #define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))
 #define DELTA_MS(start, stop) (DELTA_US((start), (stop))/1000)
@@ -149,10 +149,10 @@ void main(void) {
 
 			    if((index >= 0) & (index < STR_LEN)) {                      // Codes to write to pixel buffer. Update the array, but don't write/draw it out.
                     color[index] = destColor[index] = colr;
-			    }else if(index >= CODE_DESTINATION_BUFFER_WRITE_START && index < CODE_DESTINATION_BUFFER_WRITE_END) {   // Codes to write to destination buffer only
-                    destColor[index-CODE_DESTINATION_BUFFER_WRITE_START] = colr;
-                } else if (index >= CODE_DEFAULT_SEGMENT_INDEX_START && index <= CODE_DEFAULT_SEGMENT_INDEX_END) {  // Codes to write to default segments
-                    for(i=segments[index - CODE_DEFAULT_SEGMENT_INDEX_START][START]; i<=segments[index - CODE_DEFAULT_SEGMENT_INDEX_START][END]; i++) {
+			    }else if(index >= CODE_DESTINATION_BUFFER_WRITE_START_INDEX && index <= CODE_DESTINATION_BUFFER_WRITE_END_INDEX) {   // Codes to write to destination buffer only
+                    destColor[index-CODE_DESTINATION_BUFFER_WRITE_START_INDEX] = colr;
+                } else if (index >= CODE_DEFAULT_SEGMENT_START_INDEX && index <= CODE_DEFAULT_SEGMENT_END_INDEX) {  // Codes to write to default segments
+                    for(i=segments[index - CODE_DEFAULT_SEGMENT_START_INDEX][START]; i<=segments[index - CODE_DEFAULT_SEGMENT_START_INDEX][END]; i++) {
                         destColor[i] = colr;
                     }
                 }
