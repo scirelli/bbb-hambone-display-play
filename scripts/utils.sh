@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
 
-function setSegment() {
-    r=$1
-    g=$2
-    b=$3
-    echo "$SEGMENT_ONE $r $g $b" > "$PRU_SYSFS"
+function draw() {
     echo -1 0 0 0 > "$PRU_SYSFS"
 }
 
-function draw() {
-    echo -1 0 0 0 > "$PRU_SYSFS"
+function setSegment() {
+    s=$1
+    s=$((s + SEGMENT_ONE))
+    r=$2
+    g=$3
+    b=$4
+    echo "$s $r $g $b" > "$PRU_SYSFS"
+    draw
 }
 
 function setAll() {

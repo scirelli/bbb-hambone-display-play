@@ -29,17 +29,17 @@ setAll 255 0 0
 nextTest
 echo 'Segment test'
 echo '1=RED, 2=GREEN, 3=BLUE'
-echo "121 255 0 0" > "$PRU_SYSFS"
-echo "122 0 255 0" > "$PRU_SYSFS"
-echo "123 0 0 255" > "$PRU_SYSFS"
+setSegment 1 255 0 0
+setSegment 2 0 255 0
+setSegment 3 0 0 255
 draw
 
 echo 'Transition To: 1=BLUE, 2=RED, 3=GREEN'
 echo 'After 1 second'
 sleep 1
-echo "121 0 0 255" > "$PRU_SYSFS"
-echo "122 255 0 0" > "$PRU_SYSFS"
-echo "123 0 255 0" > "$PRU_SYSFS"
+setSegment 1 0 0 255
+setSegment 2 255 0 0
+setSegment 3 0 255 0
 draw
 
 
