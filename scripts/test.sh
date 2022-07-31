@@ -4,10 +4,12 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "$SCRIPT_DIR/variables.sh"
 source "$SCRIPT_DIR/utils.sh"
 
+DELAY_BETWEEN_TESTS=5
 test=0
 
 function nextTest(){
-    sleep 2
+    local delay="${1:-$DELAY_BETWEEN_TESTS}"
+    sleep "$delay"
     clearDisplay
     test=$((test + 1))
     echo
@@ -17,11 +19,11 @@ function nextTest(){
 }
 
 function end(){
-    sleep 5
+    sleep "$DELAY_BETWEEN_TESTS"
     clearDisplay
 }
 
-nextTest
+nextTest 0
 echo 'All red'
 setAll 255 0 0
 
