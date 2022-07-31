@@ -23,16 +23,21 @@ function end(){
     clearDisplay
 }
 
+
+
 nextTest 0
 echo 'All red'
-setAll 255 0 0
+setAndDrawAll 255 0 0
+
 
 
 nextTest
 echo 'Segment test'
-echo '1=RED, 2=GREEN, 3=BLUE'
+echo 'Segment 1=RED'
 setSegment 1 255 0 0
+echo 'Segment 2=GREEN'
 setSegment 2 0 255 0
+echo 'Segment 3=BLUE'
 setSegment 3 0 0 255
 draw
 
