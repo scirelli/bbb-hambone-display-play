@@ -45,6 +45,22 @@ setSegment 3 0 255 0
 draw
 
 
+
+nextTest
+echo 'Test bounds'
+echo 'Fade first pixel to red'
+index=$((0 + LED_COUNT))
+echo "(0, $index) on"
+echo "$index 255 0 0" > "$PRU_SYSFS"
+draw
+echo 'Fade last pixel to red'
+index=$((LED_COUNT + (LED_COUNT - 1)))
+echo "($((LED_COUNT - 1)), $index) on"
+echo "$index 255 0 0" > "$PRU_SYSFS"
+draw
+
+
+
 nextTest
 echo 'User defined segments (UDS). UDS use fading.'
 for (( i=0; i<LED_COUNT; i++ )); do
@@ -56,5 +72,7 @@ for (( i=0; i<LED_COUNT; i++ )); do
     echo "($i, $index) off"
     echo "$index 0 0 0" > "$PRU_SYSFS"
 done
+
+
 
 end
