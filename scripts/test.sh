@@ -17,6 +17,7 @@ function nextTest(){
 }
 
 function end(){
+    sleep 5
     clearDisplay
 }
 
