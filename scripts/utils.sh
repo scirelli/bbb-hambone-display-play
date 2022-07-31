@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function setAllFast() {
+function setSegment() {
     r=$1
     g=$2
     b=$3
@@ -19,11 +19,11 @@ function setAll() {
     echo -1 0 0 0 > "$PRU_SYSFS"
 }
 
-function clearDisplay2() {
+function clearDisplay() {
 	echo -2 0 0 0 > "$PRU_SYSFS"
 }
 
-function clearDisplay() {
+function clearDisplay_old() {
 	for (( i=0; i<=LED_COUNT; i++ )); do
 		echo "$i 0 0 0" > "$PRU_SYSFS"
 	done
