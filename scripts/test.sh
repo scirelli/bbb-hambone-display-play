@@ -47,7 +47,7 @@ draw
 
 nextTest
 echo 'User defined segments (UDS). UDS use fading.'
-for (( i=0; i<=LED_COUNT; i++ )); do
+for (( i=0; i<LED_COUNT; i++ )); do
     index=$((i + LED_COUNT))
     echo "($i, $index) on"
     echo "$index 255 0 0" > "$PRU_SYSFS"

@@ -18,7 +18,7 @@ function setAll() {
     r=$1
     g=$2
     b=$3
-	for (( i=0; i<=LED_COUNT; i++ )); do
+	for (( i=0; i<LED_COUNT; i++ )); do
             echo "$i $r $g $b" > "$PRU_SYSFS"
     done
 
@@ -30,7 +30,7 @@ function clearDisplay() {
 }
 
 function clearDisplay_old() {
-	for (( i=0; i<=LED_COUNT; i++ )); do
+	for (( i=0; i<LED_COUNT; i++ )); do
 		echo "$i 0 0 0" > "$PRU_SYSFS"
 	done
 
