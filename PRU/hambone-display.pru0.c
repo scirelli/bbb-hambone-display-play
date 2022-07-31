@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>			// atoi
 #include <string.h>
+#include <stdbool.h>
 #include <pru_cfg.h>
 #include <pru_intc.h>
 #include <rsc_types.h>
@@ -62,14 +63,21 @@ char payload[RPMSG_BUF_SIZE];
 #define resetCycles		    51000/NANO_SEC_PER_CYCLE    // Must be at least 50u, use 51u
 #define SPEED               20000000/NANO_SEC_PER_CYCLE // Time to wait between updates. This is being used to add cycles to the reset cycle. This seems to be needed for some "bleed" happens.
 
+#define PREDEFINED_SEGMENT_COUNT 4
+
 #define CODE_DRAW                           -1
+#define CODE_CLEAR                          -2
 #define CODE_DESTINATION_BUFFER_WRITE_START STR_LEN                 // For user defined fades
 #define CODE_DESTINATION_BUFFER_WRITE_END   (STR_LEN + STR_LEN)
 #define CODE_DEFAULT_SEGMENT_INDEX_START    120                     // For built in entire segment fades
-#define CODE_DEFAULT_SEGMENT_INDEX_END      122
+#define CODE_DEFAULT_SEGMENT_INDEX_END      (CODE_DEFAULT_SEGMENT_INDEX_START + (PREDEFINED_SEGMENT_COUNT - 1))
 
 #define DELTA_US(start, stop) (((stop).tv_sec - (start).tv_sec) * 1000000 + ((stop).tv_usec - (start).tv_usec))
 #define DELTA_MS(start, stop) (DELTA_US((start), (stop))/1000)
+#define RED(color)            (((color) & 0x0000FF00) >> 8)
+#define GREEN(color)          (((color) & 0x00FF0000) >> 16)
+#define BLUE(color)           (((color) & 0x000000FF) >> 0)
+#define PACK_COLOR(r, g, b)   (((g)<<16)|((r)<<8)|(b))
 
 #define START 0                 // Segment begin index
 #define END 1                   // Segment end index
@@ -77,26 +85,27 @@ char payload[RPMSG_BUF_SIZE];
 uint32_t color[STR_LEN];    	// 3 bytes each: green, red, blue
 uint32_t destColor[STR_LEN];	// If dest color differs from color, transition from color to dest.
 // Default segments
-size_t segments[3][2] = {       //[x][y] x segments, y segment range: begin, end
-       {0, 5},                  // 6 pixels long
-       {6, 15},                 // 10 pixels long
-       {16, 41}                 // 26 pixels long
+size_t segments[PREDEFINED_SEGMENT_COUNT][2] = {       //[x][y] x segments, y segment range: begin index, end index
+    {0, STR_LEN-1},             // Entire display
+    {0, 5},                     // 6 pixels long
+    {6, 15},                    // 10 pixels long
+    {16, STR_LEN-1}             // 26 pixels long
 };
 
 void drawToLEDs(void);
+bool doFade(void);
 
 /*
  * main.c
  */
-void main(void)
-{
+void main(void) {
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
 	uint8_t r, g, b, d_r, d_g, d_b;
 	int i, k=0;
     uint32_t colr;
-	int colorNeedsFade = 0;
+	bool colorNeedsFade = false;
 
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
@@ -150,11 +159,14 @@ void main(void)
                 else {
                     switch(index) {
                     case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
+                        //while(doFade()) {
+                        //    drawToLEDs();
+                        //}
             			do {
-            			    colorNeedsFade = 0;
+            			    colorNeedsFade = false;
                 			for(k=0; k < STR_LEN; k++){
                 			    if(color[k] == destColor[k]) continue;
-                			    colorNeedsFade = 1;
+                			    colorNeedsFade = true;
                 			    b = (color[k] & 0x000000FF) >> 0;
                 			    r = (color[k] & 0x0000FF00) >> 8;
                 			    g = (color[k] & 0x00FF0000) >> 16;
@@ -171,6 +183,12 @@ void main(void)
                 			}
                             drawToLEDs(); // Output the string
             			}while(colorNeedsFade);
+                        break;
+                    case CODE_CLEAR:                                        // Index = CODE_CLEAR; the display
+                        for(k=0; k < STR_LEN; k++){
+                            color[k] = destColor[k] = 0;
+                        }
+                        drawToLEDs();
                         break;
                     }
                 }
@@ -206,6 +224,34 @@ void drawToLEDs(void){
 
     // Wait
     __delay_cycles(SPEED);
+}
+
+/*
+ * doFade
+ * return: true (1) if the function should be called again to continue the fade. False if fade is complete.
+ */
+bool doFade(void) {
+	uint8_t r, g, b, d_r, d_g, d_b;
+    int i;
+    bool = colorNeedsFade = false;
+    for(i=0; i < STR_LEN; i++){
+        if(color[i] == destColor[i]) continue;
+        colorNeedsFade = true;
+        b = (color[i] & 0x000000FF) >> 0;
+        r = (color[i] & 0x0000FF00) >> 8;
+        g = (color[i] & 0x00FF0000) >> 16;
+
+        d_b = (destColor[i] & 0x000000FF) >> 0;
+        d_r = (destColor[i] & 0x0000FF00) >> 8;
+        d_g = (destColor[i] & 0x00FF0000) >> 16;
+
+        if(b < d_b) b++; else if(b > d_b) b--;
+        if(r < d_r) r++; else if(r > d_r) r--;
+        if(g < d_g) g++; else if(g > d_g) g--;
+
+        color[i] = (g<<16)|(r<<8)|b;
+    }
+    return colorNeedsFade;
 }
 
 // Sets pinmux
