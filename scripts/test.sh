@@ -114,6 +114,4 @@ function test_5() {
     done
 }
 
-for i in "${!TESTS[@]}"; do   ${TESTS[$i]}; done
-
-end
+# for i in "${!TESTS[@]}"; do   ${TESTS[$i]}; done
