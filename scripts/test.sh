@@ -100,13 +100,14 @@ incTest
 TESTS=("${TESTS[@]}" "test_$testNo")
 function test_5() {
     nextTest 5
-    echo 'Use user defined segment to blink last LED'
-    for (( i=0; i<10; i++ )); do
+    local blinkCount=10
+    echo "Use user defined segment to blink last LED $blinkCount times"
+    for (( i=0; i<blinkCount; i++ )); do
         index=$(((LED_COUNT - 1) + LED_COUNT))
         echo "$index on"
         echo "$index 255 0 0" > "$PRU_SYSFS"
         draw
-        sleep 0.1
+        sleep 1
         echo "($index) off"
         echo "$index 0 0 0" > "$PRU_SYSFS"
     done
