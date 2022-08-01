@@ -72,7 +72,7 @@ for (( i=0; i<LED_COUNT; i++ )); do
     echo "($i, $index) on"
     echo "$index 255 0 0" > "$PRU_SYSFS"
     draw
-    sleep 1
+    sleep 0.1
     echo "($i, $index) off"
     echo "$index 0 0 0" > "$PRU_SYSFS"
 done

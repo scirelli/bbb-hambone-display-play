@@ -60,8 +60,7 @@ char payload[RPMSG_BUF_SIZE];
 #define oneCyclesOff	    600/NANO_SEC_PER_CYCLE
 #define zeroCyclesOn	    350/NANO_SEC_PER_CYCLE
 #define zeroCyclesOff   	800/NANO_SEC_PER_CYCLE
-#define resetCycles		    51000/NANO_SEC_PER_CYCLE    // Must be at least 50u, use 51u
-#define SPEED               20000000/NANO_SEC_PER_CYCLE // Time to wait between updates. This is being used to add cycles to the reset cycle. This seems to be needed for some "bleed" happens.
+#define resetCycles		    70000/NANO_SEC_PER_CYCLE    // Must be at least 50u, use 51u. 70us seems to be the sweet spot
 
 #define PREDEFINED_SEGMENT_COUNT 4
 
@@ -79,6 +78,8 @@ char payload[RPMSG_BUF_SIZE];
 #define BLUE(color)           (((color) & 0x000000FF) >> 0)
 #define PACK_COLOR(r, g, b)   (((g)<<16)|((r)<<8)|(b))
 
+#define FADE_SPEED 3
+
 #define START 0                 // Segment begin index
 #define END 1                   // Segment end index
 
@@ -94,6 +95,7 @@ size_t segments[PREDEFINED_SEGMENT_COUNT][2] = {       //[x][y] x segments, y se
 
 void drawToLEDs(void);
 bool doFade(void);
+int8_t convergeFactor(uint8_t a, uint8_t b);
 
 /*
  * main.c
@@ -167,19 +169,19 @@ void main(void) {
                 			for(k=0; k < STR_LEN; k++){
                 			    if(color[k] == destColor[k]) continue;
                 			    colorNeedsFade = true;
-                			    b = (color[k] & 0x000000FF) >> 0;
-                			    r = (color[k] & 0x0000FF00) >> 8;
-                			    g = (color[k] & 0x00FF0000) >> 16;
+                			    b = BLUE(color[k]);
+                			    r = RED(color[k]);
+                			    g = GREEN(color[k]);
 
-                			    d_b = (destColor[k] & 0x000000FF) >> 0;
-                			    d_r = (destColor[k] & 0x0000FF00) >> 8;
-                			    d_g = (destColor[k] & 0x00FF0000) >> 16;
+                			    d_b = BLUE(destColor[k]);
+                			    d_r = RED(destColor[k]);
+                			    d_g = GREEN(destColor[k]);
 
-                			    if(b < d_b) b++; else if(b > d_b) b--;
-                			    if(r < d_r) r++; else if(r > d_r) r--;
-                			    if(g < d_g) g++; else if(g > d_g) g--;
+                                b += convergeFactor(b, d_b);
+                                r += convergeFactor(r, d_r);
+                                g += convergeFactor(g, d_g);
 
-                                color[k] = (g<<16)|(r<<8)|b;
+                                color[k] = PACK_COLOR(r, g, b);
                 			}
                             drawToLEDs(); // Output the string
             			}while(colorNeedsFade);
@@ -221,9 +223,6 @@ void drawToLEDs(void){
     // Send Reset
     __R30 &= ~gpio;	// Clear the GPIO pin
     __delay_cycles(resetCycles);
-
-    // Wait
-    //__delay_cycles(SPEED);
 }
 
 /*
@@ -237,21 +236,28 @@ bool doFade(void) {
     for(i=0; i < STR_LEN; i++){
         if(color[i] == destColor[i]) continue;
         colorNeedsFade = true;
-        b = (color[i] & 0x000000FF) >> 0;
-        r = (color[i] & 0x0000FF00) >> 8;
-        g = (color[i] & 0x00FF0000) >> 16;
+        b = BLUE(color[i]);
+        r = RED(color[i]);
+        g = GREEN(color[i]);
 
-        d_b = (destColor[i] & 0x000000FF) >> 0;
-        d_r = (destColor[i] & 0x0000FF00) >> 8;
-        d_g = (destColor[i] & 0x00FF0000) >> 16;
+        d_b = BLUE(destColor[i]);
+        d_r = RED(destColor[i]);
+        d_g = GREEN(destColor[i]);
 
-        if(b < d_b) b++; else if(b > d_b) b--;
-        if(r < d_r) r++; else if(r > d_r) r--;
-        if(g < d_g) g++; else if(g > d_g) g--;
+        b += convergeFactor(b, d_b);
+        r += convergeFactor(r, d_r);
+        g += convergeFactor(g, d_g);
 
-        color[i] = (g<<16)|(r<<8)|b;
+        color[i] = PACK_COLOR(r, g, b);
     }
     return colorNeedsFade;
+}
+
+int8_t convergeFactor(uint8_t a, uint8_t b) {
+   int8_t dif = b - a;
+   if(dif > FADE_SPEED) return FADE_SPEED;
+   if(dif < -FADE_SPEED) return -FADE_SPEED;
+   return dif;
 }
 
 // Sets pinmux
