@@ -161,9 +161,9 @@ void main(void) {
                 else {
                     switch(index) {
                     case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
-                        while(doFade()) {
+                        do {
                             drawToLEDs();
-                        }
+                        } while(doFade());
                         break;
                     case CODE_CLEAR:                                        // Index = CODE_CLEAR; the display
                         for(k=0; k < STR_LEN; k++){

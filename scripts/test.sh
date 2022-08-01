@@ -19,6 +19,7 @@ function nextTest(){
 
 function end(){
     sleep "$DELAY_BETWEEN_TESTS"
+    echo 'Tests complete.'
     clearDisplay
 }
 
