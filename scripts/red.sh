@@ -4,4 +4,4 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "$SCRIPT_DIR/variables.sh"
 source "$SCRIPT_DIR/utils.sh"
 
-setAll 255 0 0
+setAllAndDraw 255 0 0

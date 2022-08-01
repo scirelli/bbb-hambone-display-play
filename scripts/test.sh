@@ -3,7 +3,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 source "$SCRIPT_DIR/utils.sh"
 
-DELAY_BETWEEN_TESTS=5
+DELAY_BETWEEN_TESTS=2
 declare -a TESTS
 
 function addTest(){

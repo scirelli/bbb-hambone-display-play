@@ -11,7 +11,90 @@
 //	Setup:	config_pin P9_29 pruout
 //	See:
 //	PRU:	pru0
-////////////////////////////////////////
+//  Refernce:
+//  * http://cdn.sparkfun.com/datasheets/Components/LED/WS2812.pdf or https://cdn-shop.adafruit.com/datasheets/WS2812.pdf
+//  * https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf
+/*
+WS2812 and WS2812B have slightly different times. Other versions do as well.
+
+Data Transfer time (TH+TL=1.25μs +-600ns) (WS2812)
+┏━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━┓
+┃  T0H               │ 0 code, high voltage time         │ 0.35μs             │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T1H               │ 1 code, high voltage time         │ 0.7μs              │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T0L               │ 0 code, low voltage time          │ 0.8μs              │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T0L               │ 1 code, low voltage time          │ 0.6μs              │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  RES               │ low voltage time                  │ Above 50μs         │                    ┃
+┗━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━┛
+
+Data Transfer time (TH+TL=1.25μs +-600ns) (WS2812B)
+┏━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━┓
+┃  T0H               │ 0 code, high voltage time         │ 0.4μs              │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T1H               │ 1 code, high voltage time         │ 0.8μs              │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T0L               │ 0 code, low voltage time          │ 0.85μs             │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  T0L               │ 1 code, low voltage time          │ 0.45μs             │ +-150ns            ┃
+┠────────────────────┼───────────────────────────────────┼────────────────────┼────────────────────┨
+┃  RES               │ low voltage time                  │ Above 50μs         │                    ┃
+┗━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━┛
+
+Sequence Chart
+         ┏━━━━━━━━━┓     T0L    ┃
+         ┃<------->┃<---------->┃
+0 code   ┃   T0H   ┗━━━━━━━━━━━━┛
+
+
+         ┏━━━━━━━━━━━━┓   T1L   ┃
+         ┃<---------->┃<------->┃
+1 code   ┃   T1H      ┗━━━━━━━━━┛
+
+
+         ┃       Treset         ┃
+RET code ┃<-------------------->┃
+         ┗━━━━━━━━━━━━━━━━━━━━━━┛
+
+Cascade method:
+
+D1  ┏━━━━━━━━━━┓ D2   ┏━━━━━━━━━━┓ D3   ┏━━━━━━━━━━┓ D4
+--->┃DIN     D0┃----->┃DIN     D0┃----->┃DIN     D0┃----->
+    ┃   PIX1   ┃      ┃   PIX2   ┃      ┃   PIX3   ┃
+    ┗━━━━━━━━━━┛      ┗━━━━━━━━━━┛      ┗━━━━━━━━━━┛
+
+Data Transmission method:
+                                            reset code
+                                             >= 50μs
+    │                                 ---->│          │<----                                       │
+    │<-- Data refresh cycle 1 ------------>│          │<----------- Data refresh cycle 2 --------->│
+    ├────────────┬────────────┬────────────┤          ├────────────┬────────────┬────────────┐     │
+    │ 1st 24bits │ 2nd 24bits │ 3rd 24bits │          │ 1st 24bits │ 2nd 24bits │ 3rd 24bits │     │
+D1 ─┼────────────┴────────────┴────────────┼──────────┼────────────┴────────────┴────────────┴─────┼──
+    │                                      │          │                                            │
+    │            ┌────────────┬────────────┤          │            ┌────────────┬────────────┐     │
+    │            │ 2nd 24bits │ 3rd 24bits │          │            │ 2nd 24bits │ 3rd 24bits │     │
+D2 ─┼────────────┴────────────┴────────────┼──────────┼────────────┴────────────┴────────────┴─────┼──
+    │                                      │          │                                            │
+    │                         ┌────────────┤          │                         ┌────────────┐     │
+    │                         │ 3rd 24bits │          │                         │ 3rd 24bits │     │
+D3 ─┼─────────────────────────┴────────────┼──────────┼─────────────────────────┴────────────┴─────┼──
+    │                                      │          │                                            │
+    │                                      │          │                                            │
+    │                                      │          │                                            │
+D4 ─┼──────────────────────────────────────┼──────────┼────────────────────────────────────────────┼──
+
+Note: The data of D1 is send by the MCU. D2, D3, and D4 through pixel internal reshaping amplification to
+transmit.
+
+Composition of 24bit data:
+┏━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┯━━━━┓
+┃ G7 │ G6 │ G5 │ G4 │ G3 │ G2 │ G1 │ G0 │ R7 │ R6 │ R5 │ R4 │ R3 │ R2 │ R1 │ R0 │ B7 │ B6 │ B5 │ B4 │ B3 │ B2 │ B1 │ B0 ┃
+┗━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┷━━━━┛
+Note: Follow the order of GRB to sent data and the high bit sent at first. Big-endian
+//////////////////////////////////////// */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>			// atoi
@@ -107,7 +190,6 @@ void main(void) {
 	uint8_t r, g, b;
 	int i, k=0;
     uint32_t colr;
-	bool colorNeedsFade = false;
 
 	// Set everything to background
 	for(i=0; i<STR_LEN; i++) {
@@ -127,6 +209,44 @@ void main(void) {
 	/* Initialize the RPMsg transport structure */
 	pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
 
+    /* Receive all available messages, multiple messages can be sent per kick */
+    /** https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/tree/include/pru_rpmsg.h?id=aa9606013059eb8728bcc1165c5032f0589469e0
+    * Summary		:	pru_rpmsg_receive receives a message, if available, from
+    * 					the ARM host.
+    *
+    * Parameters	:	transport: a pointer to the transport layer from which the
+    * 							   message should be received
+    * 					src: a pointer that is populated with the source address
+    * 						 where the message originated
+    * 					dst: a pointer that is populated with the destination
+    * 						 address where the message was sent (can help determine
+    * 						 for which channel the message is intended on the PRU)
+    * 					data: a pointer that is populated with a local data buffer
+    * 						  containing the message payload
+    * 					len: a pointer that is populated with the length of the
+    * 						 message payload
+    *
+    * Description	:	pru_rpmsg_receive uses the pru_virtqueue interface to get
+    * 					an available buffer, copy the buffer into local memory,
+    * 					add the buffer as a used buffer to the vring, and then kick
+    * 					the remote processor if necessary. The src, dst, data, and
+    * 					len pointers are populated with the information about the
+    * 					message and local buffer data if the reception is
+    * 					successful.
+    *
+    * Return Value	:	Returns PRU_RPMSG_NO_BUF_AVAILABLE if there is currently no
+    * 					buffer available for receive. Returns PRU_RPMSG_INVALID_HEAD
+    * 					if the head index returned for the available buffer is
+    * 					invalid. Returns PRU_RPMSG_SUCCESS if the message is
+    * 					successfully received.
+        int16_t pru_rpmsg_receive (
+            struct pru_rpmsg_transport 	*transport,
+            uint16_t 					*src,
+            uint16_t 					*dst,
+            void 						*data,
+            uint16_t 					*len
+        );
+    */
 	/* Create the RPMsg channel between the PRU and ARM user space using the transport structure. */
 	while (pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
 	while (1) {
