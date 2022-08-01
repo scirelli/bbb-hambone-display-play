@@ -104,7 +104,7 @@ void main(void) {
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
-	uint8_t r, g, b, d_r, d_g, d_b;
+	uint8_t r, g, b;
 	int i, k=0;
     uint32_t colr;
 	bool colorNeedsFade = false;
