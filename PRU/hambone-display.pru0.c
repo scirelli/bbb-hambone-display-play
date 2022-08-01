@@ -161,30 +161,9 @@ void main(void) {
                 else {
                     switch(index) {
                     case CODE_DRAW:                // Index = CODE_DRAW; send the array to the LED string
-                        //while(doFade()) {
-                        //    drawToLEDs();
-                        //}
-            			do {
-            			    colorNeedsFade = false;
-                			for(k=0; k < STR_LEN; k++){
-                			    if(color[k] == destColor[k]) continue;
-                			    colorNeedsFade = true;
-                			    b = BLUE(color[k]);
-                			    r = RED(color[k]);
-                			    g = GREEN(color[k]);
-
-                			    d_b = BLUE(destColor[k]);
-                			    d_r = RED(destColor[k]);
-                			    d_g = GREEN(destColor[k]);
-
-                                b += convergeFactor(b, d_b);
-                                r += convergeFactor(r, d_r);
-                                g += convergeFactor(g, d_g);
-
-                                color[k] = PACK_COLOR(r, g, b);
-                			}
-                            drawToLEDs(); // Output the string
-            			}while(colorNeedsFade);
+                        while(doFade()) {
+                            drawToLEDs();
+                        }
                         break;
                     case CODE_CLEAR:                                        // Index = CODE_CLEAR; the display
                         for(k=0; k < STR_LEN; k++){
