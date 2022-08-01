@@ -223,7 +223,7 @@ void drawToLEDs(void){
     __delay_cycles(resetCycles);
 
     // Wait
-    __delay_cycles(SPEED);
+    //__delay_cycles(SPEED);
 }
 
 /*
