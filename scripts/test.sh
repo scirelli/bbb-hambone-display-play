@@ -27,15 +27,15 @@ function cleanUp(){
     clearDisplay
 }
 
+addTest "test_1"
 function test_1() {
-    addTest "${FUNCNAME[0]}"
-    echo 'All red'
+    echo "${FUNCNAME[0]}: All red"
     setAndDrawAll 255 0 0
 }
 
 
+addTest "test_2"
 function test_2() {
-    addTest "${FUNCNAME[0]}"
     echo 'Segment test'
     echo 'Segment 1=RED'
     setSegment 1 255 0 0
@@ -55,8 +55,8 @@ function test_2() {
 }
 
 
+addTest "test_3"
 function test_3(){
-    addTest "${FUNCNAME[0]}"
     echo 'Test bounds'
     echo 'Fade first pixel to red'
     index=$((0 + LED_COUNT))
@@ -70,8 +70,8 @@ function test_3(){
     draw
 }
 
+addTest "test_4"
 function test_4(){
-    addTest "${FUNCNAME[0]}"
     echo 'User defined segments (UDS). UDS use fading.'
     for (( i=0; i<LED_COUNT; i++ )); do
         index=$((i + LED_COUNT))
@@ -86,8 +86,8 @@ function test_4(){
 }
 
 
+addTest "test_5"
 function test_5() {
-    addTest "${FUNCNAME[0]}"
     local blinkCount=10
     echo "Use user defined segment to blink last LED $blinkCount times"
     for (( i=0; i<blinkCount; i++ )); do
