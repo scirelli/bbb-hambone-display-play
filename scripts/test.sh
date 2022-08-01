@@ -4,45 +4,38 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "$SCRIPT_DIR/utils.sh"
 
 DELAY_BETWEEN_TESTS=5
-testNo=0
+declare -a TESTS
 
-function incTest(){
-    testNo=$((testNo + 1))
+function addTest(){
+    TESTS=("${TESTS[@]}" "$1")
 }
 
 function nextTest(){
-    local testNo=$1
-    local delay="${2:-$DELAY_BETWEEN_TESTS}"
+    local delay="${1:-$DELAY_BETWEEN_TESTS}"
     echo "Waiting ${delay}s to start next test"
     sleep "$delay"
+    echo "Clearing display"
     clearDisplay
     echo
     echo
     echo
-    echo "Test $testNo"
 }
 
-function end(){
+function cleanUp(){
     sleep "$DELAY_BETWEEN_TESTS"
     echo 'Tests complete.'
     clearDisplay
 }
 
-declare -a TESTS
-
-incTest
-TESTS=("${TESTS[@]}" "test_$testNo")
 function test_1() {
-    nextTest 1 0
+    addTest "${FUNCNAME[0]}"
     echo 'All red'
     setAndDrawAll 255 0 0
 }
 
 
-incTest
-TESTS=("${TESTS[@]}" "test_$testNo")
 function test_2() {
-    nextTest 2
+    addTest "${FUNCNAME[0]}"
     echo 'Segment test'
     echo 'Segment 1=RED'
     setSegment 1 255 0 0
@@ -62,10 +55,8 @@ function test_2() {
 }
 
 
-incTest
-TESTS=("${TESTS[@]}" "test_$testNo")
 function test_3(){
-    nextTest 3
+    addTest "${FUNCNAME[0]}"
     echo 'Test bounds'
     echo 'Fade first pixel to red'
     index=$((0 + LED_COUNT))
@@ -79,10 +70,8 @@ function test_3(){
     draw
 }
 
-incTest
-TESTS=("${TESTS[@]}" "test_$testNo")
 function test_4(){
-    nextTest 4
+    addTest "${FUNCNAME[0]}"
     echo 'User defined segments (UDS). UDS use fading.'
     for (( i=0; i<LED_COUNT; i++ )); do
         index=$((i + LED_COUNT))
@@ -97,10 +86,8 @@ function test_4(){
 }
 
 
-incTest
-TESTS=("${TESTS[@]}" "test_$testNo")
 function test_5() {
-    nextTest 5
+    addTest "${FUNCNAME[0]}"
     local blinkCount=10
     echo "Use user defined segment to blink last LED $blinkCount times"
     for (( i=0; i<blinkCount; i++ )); do
