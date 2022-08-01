@@ -147,7 +147,7 @@ void main(void) {
                 g = strtol(&ret[1], NULL, 0);
                 ret = strchr(&ret[1], ' ');
                 b = strtol(&ret[1], NULL, 0);
-                colr = (g<<16)|(r<<8)|b;	// String wants GRB
+                colr = PACK_COLOR(r, g, b);	// String wants GRB
 
 			    if((index >= 0) & (index < STR_LEN)) {                      // Codes to write to pixel buffer. Update the array, but don't write/draw it out.
                     color[index] = destColor[index] = colr;
