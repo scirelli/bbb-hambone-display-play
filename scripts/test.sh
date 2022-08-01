@@ -30,7 +30,7 @@ function end(){
 
 declare -a TESTS
 
-TESTS=("${TESTS[@]}" "test_${incTest}")
+TESTS=("${TESTS[@]}" "test_$(incTest)")
 function test_1() {
     nextTest 1
     echo 'All red'
@@ -38,7 +38,7 @@ function test_1() {
 }
 
 
-TESTS=("${TESTS[@]}" "test_${incTest}")
+TESTS=("${TESTS[@]}" "test_$(incTest)")
 function test_2() {
     nextTest 2
     echo 'Segment test'
@@ -60,7 +60,7 @@ function test_2() {
 }
 
 
-TESTS=("${TESTS[@]}" "test_${incTest}")
+TESTS=("${TESTS[@]}" "test_$(incTest)")
 function test_3(){
     nextTest 3
     echo 'Test bounds'
@@ -76,7 +76,7 @@ function test_3(){
     draw
 }
 
-TESTS=("${TESTS[@]}" "test_${incTest}")
+TESTS=("${TESTS[@]}" "test_$(incTest)")
 function test_4(){
     nextTest 4
     echo 'User defined segments (UDS). UDS use fading.'
@@ -92,7 +92,7 @@ function test_4(){
 }
 
 
-TESTS=("${TESTS[@]}" "test_${incTest}")
+TESTS=("${TESTS[@]}" "test_$(incTest)")
 function test_5() {
     nextTest 5
     echo 'Use user defined segment to blink last LED'
