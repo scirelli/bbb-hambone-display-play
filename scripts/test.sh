@@ -107,10 +107,11 @@ function test_5() {
         echo "$index on"
         echo "$index 255 0 0" > "$PRU_SYSFS"
         draw
-        sleep 1
+        sleep 0.5
         echo "($index) off"
         echo "$index 0 0 0" > "$PRU_SYSFS"
         draw
+        sleep 0.5
     done
 }
 
