@@ -11,8 +11,9 @@ function incTest(){
 }
 
 function nextTest(){
-    local delay="${1:-$DELAY_BETWEEN_TESTS}"
     local testNo=$1
+    local delay="${2:-$DELAY_BETWEEN_TESTS}"
+    echo "Waiting ${delay}s to start next test"
     sleep "$delay"
     clearDisplay
     echo
@@ -32,7 +33,7 @@ declare -a TESTS
 incTest
 TESTS=("${TESTS[@]}" "test_$testNo")
 function test_1() {
-    nextTest 1
+    nextTest 1 0
     echo 'All red'
     setAndDrawAll 255 0 0
 }
