@@ -8,7 +8,6 @@ testNo=0
 
 function incTest(){
     testNo=$((testNo + 1))
-    echo "$testNo"
 }
 
 function nextTest(){
@@ -92,6 +91,7 @@ function test_4(){
         sleep 0.1
         echo "($i, $index) off"
         echo "$index 0 0 0" > "$PRU_SYSFS"
+        draw
     done
 }
 
@@ -110,6 +110,7 @@ function test_5() {
         sleep 1
         echo "($index) off"
         echo "$index 0 0 0" > "$PRU_SYSFS"
+        draw
     done
 }
 
