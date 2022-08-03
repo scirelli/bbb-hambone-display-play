@@ -2,13 +2,7 @@ from .FileWriter import FileWriter
 
 
 class PRUDeviceWriter(FileWriter):
-    def __init__(self, dev_file_path: str = "/dev/rpmsg_pru30"):  # pylint: disable=useless-super-delegation
+    def __init__(
+        self, dev_file_path: str = "/dev/rpmsg_pru30"
+    ):  # pylint: disable=useless-super-delegation
         super().__init__(dev_file_path)
-
-    def write(self, b: bytearray) -> None:
-        index = 0
-        for i in range(0, len(b), 3):
-            # print("%d %d %d %d\n".encode("utf-8") % (index, item.r, item.g, item.b))
-            self.file.write("%d %d %d %d\n".encode("utf-8") % (index, b[i], b[i + 1], b[i + 2]))
-            index = index + 1
-        self.file.write("%d %d %d %d\n".encode("utf-8") % (-1, 0, 0, 0))
