@@ -57,6 +57,7 @@ class Demo:
             if dt >= timeNs:
                 break
             self._cck.presenter_timeout_percentage(1 - (dt / timeNs))
+            sleep(0.001)
 
     def segment_flashing(  # pylint: disable=too-many-arguments
         self, segment_index: int, timeMs: float, r: float, g: float, b: float
