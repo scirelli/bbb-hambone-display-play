@@ -37,7 +37,7 @@ class Demo:
             else:
                 self._cck.all_segments_off()
 
-            sleep(0.1)
+            sleep(Demo.FLASH_RATE_MS / 1000)
 
     def presenter_flashing(self, r: float, g: float, b: float, timeMs: float) -> None:
         self.segment_flashing(CCKDisplay.presenter_segment_index, timeMs, r, g, b)
@@ -79,3 +79,5 @@ class Demo:
                 self._cck.set_segment(segment_index, r, g, b)
             else:
                 self._cck.set_segment(segment_index, *CCKDisplay.COLORS["OFF"])
+
+            sleep(Demo.FLASH_RATE_MS / 1000)
