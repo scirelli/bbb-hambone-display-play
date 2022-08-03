@@ -10,7 +10,7 @@ from neopixel.writer.Writer import Writer
 from .logger import create_logger
 
 DEFAULT_LOGGER = create_logger("NEOPIXEL")
-DEFAULT_WRITER = STDOutWriter()
+DEFAULT_WRITER = STDOutWriter(None)
 DEFAULT_LED_COUNT = (
     42  # Defined in PRU. This is the max number of LEDs unless changed in PRU firmware.
 )
@@ -22,6 +22,12 @@ SEGMENT_THREE = 3  # Defined in PRU
 
 
 class NeoPixelPRU:
+    """
+    NeoPixel Driver class. Used to interact with PRU firmware.
+    """
+
+    FIRMWARE_VERSION = "1.x.x"
+
     SEGMENT_COUNT = SEGMENT_COUNT
     SEGMENT_ALL = SEGMENT_ALL
     SEGMENT_ONE = SEGMENT_ONE

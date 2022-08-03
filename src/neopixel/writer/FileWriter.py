@@ -17,7 +17,7 @@ class FileWriter(Writer):
                 "ab", 0, suffix=FileWriter.FILE_SUFFIX, delete=False
             )
         else:
-            self.file = open(file_path, "ab", 0)
+            self.file = open(file_path, "ab", 0)  # pylint: disable=consider-using-with
 
     def write(self, b: bytearray) -> None:
         self.file.write(b)

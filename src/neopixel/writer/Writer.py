@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from types import TracebackType
-from typing import Optional, Type
+from typing import Any, Optional, Type
 
 
 class Writer(ABC):
+    def __init__(self, config: Optional[dict[str, Any]]):
+        pass
+
     @abstractmethod
     def write(self, b: bytearray) -> None:
         """

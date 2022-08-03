@@ -1,82 +1,102 @@
 #!/usr/bin/env python3
 #  pylint: disable=wrong-import-order
-import logging
 from collections import defaultdict
-from time import perf_counter_ns
+from logging import Logger
+from time import sleep
 from typing import Any, Dict
 
-from neopixel import animations
-from neopixel.display import NeoPixelDisplay
+from neopixel import writer
+from neopixel.CCKDisplay import CCKDisplay
+from neopixel.Demo import Demo
 from neopixel.logger import create_logger
-from neopixel.writer.PRUDeviceWriter import PRUDeviceWriter
 
-logging.basicConfig(level=logging.DEBUG)
+TWO_SECONDS = 2
+FIVE_SECONDS = 5
+TEN_SECONDS = 10
+TOTAL_FLASH_TIME = TEN_SECONDS
+TOTAL_ANIMATION_TIME = TEN_SECONDS
 
-LED_COUNT = 42
 DEFAULT_CONFIG = {
-    "ledCount": 42,
-    "iterations": -1,
-    "totalSimulationTimeSeconds": 10,
-    "PRU": {
-        "file": "/tmp/pru_output.bin",
-    },
-    "animations": [
-        {
-            "type": "Rainbow",
-            "totalAnimationTimeSeconds": -1,
-            "config": {},
+    "cckConfig": {
+        "neoPixelConfig": {
+            "ledCount": 42,
+            "writer": None,
         },
-    ],
+        "writer": {
+            "type": "PRUDeviceWriter",
+            "config": {
+                "_fileName": "/dev/rpmsg_pru30",
+                "fileName": "/tmp/rpmsg_pru30.txt",
+                "fileMode": "a",
+            },
+        },
+    },
 }
 
 
 def main(config: Dict[str, Any]) -> None:
-    config = defaultdict(dict, {**DEFAULT_CONFIG, **config})
-    iterations: int = int(config.get("iterations", -1))
-    totalSimulationTimeSeconds: float = float(
-        config.get("totalSimulationTimeSeconds", 10)
+    config = defaultdict(
+        dict, {**DEFAULT_CONFIG, **config}
+    )  # Need to fix this for nesting
+    log: Logger = create_logger("Demo")
+    cckConfig = config["cckConfig"]
+    cckConfig["logger"] = log
+    cckConfig["neoPixelConfig"]["logger"] = log
+    wr = writer.__dict__[cckConfig.get("writer", {}).get("type", "STDOutWriter")](
+        cckConfig.get("writer", {}).get("config", {}).get("fileName", "")
     )
-    loaded_animations: list[dict[str, Any]] = []
-    dt_ns: int = 0
-    start_time_ns: int = 0
-    currentTime: float = 0
-    cnt: int = 0
+    testNo = 0
 
-    with PRUDeviceWriter(config.get("PRU", {}).get("file", "")) as f:
-        display = NeoPixelDisplay(int(config.get("ledCount", LED_COUNT)), f)
-        display.clear()
-        display.draw()
+    with wr as f:
+        cckConfig["neoPixelConfig"]["writer"] = f
+        cck = CCKDisplay(cckConfig)
+        demo = Demo(cck)
 
-        for a in config.get("animations", []):
-            anim_config = a.get("config", {})
-            anim_config["display"] = display
-            anim_config["totalAnimationTimeSeconds"] = float(
-                anim_config.get("totalAnimationTimeSeconds", totalSimulationTimeSeconds)
-            )
-            loaded_animations.append(
-                {
-                    "animation": animations.__dict__.get(
-                        a.get("type", "FailAnimator"), animations.FailAnimator
-                    )(anim_config),
-                    "config": anim_config,
-                }
-            )
+        log.info("Init")
+        cck.all_segments_off()
+        sleep(TWO_SECONDS)
 
-        while currentTime < totalSimulationTimeSeconds:
-            start_time_ns = perf_counter_ns()
-            for a in loaded_animations:
-                if currentTime <= a["config"]["totalAnimationTimeSeconds"]:
-                    a["animation"].animate(dt_ns)
-            display.draw()
-            cnt = cnt + 1
-            if iterations != -1 and cnt >= iterations:
-                break
+        log.info("ATMOF-2159 Demo #%s\n\tAll display segments off.", testNo)
+        cck.all_segments_off()
+        sleep(TWO_SECONDS)
+        testNo += 1
 
-            dt_ns = perf_counter_ns() - start_time_ns
-            currentTime = currentTime + (dt_ns / 1e9)  # 1ns/1e9 s
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info("\tAll display segments flashing red.")
+        demo.all_Error_Flashing(TOTAL_FLASH_TIME * 1000)
+        testNo += 1
 
-        display.clear()
-        display.draw()
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info("\tDisplay segment flashing green.")
+        demo.display_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
+        testNo += 1
+
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info("\tScanner segment flashing green.")
+        demo.scanner_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
+        testNo += 1
+
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info("\tPresenter segment flashing green.")
+        demo.presenter_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
+        testNo += 1
+
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info(
+            "\tPresenter segment flashing yellow one second intervals. One second intervals is the default for flashing anyway."
+        )
+        demo.presenter_flashing(128, 128, 0, TOTAL_FLASH_TIME * 1000)
+        testNo += 1
+
+        log.info("ATMOF-2159 Demo #%d", testNo)
+        log.info(
+            "\tAnimation from all green to yellow to red as CCK counts down from 10s to retract check."
+        )
+        demo.check_retract_timer(TOTAL_ANIMATION_TIME * 1000)
+        testNo += 1
+
+        log.info("Clean up.")
+        cck.all_segments_off()
 
 
 if __name__ == "__main__":
