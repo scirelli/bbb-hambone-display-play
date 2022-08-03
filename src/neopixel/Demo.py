@@ -21,9 +21,8 @@ class Demo:
         self._cck: CCKDisplay = cckDisplay
 
     def all_Error_Flashing(self, timeMs: float) -> None:
-        on: bool = True
+        on: bool = False
         timeNS = timeMs * MILLI_SECOND_IN_NANO_SECOND
-        self._cck.set_all_segments_color(*Demo.COLORS["RED"])
         startTimeNS = perf_counter_ns()
         while True:
             dt = perf_counter_ns() - startTimeNS
@@ -62,10 +61,9 @@ class Demo:
     def segment_flashing(  # pylint: disable=too-many-arguments
         self, segment_index: int, timeMs: float, r: float, g: float, b: float
     ) -> None:
-        on: bool = True
+        on: bool = False
         timeNs: float = timeMs * MILLI_SECOND_IN_NANO_SECOND
 
-        self._cck.set_segment(segment_index, r, g, b)
         startTimeNS = perf_counter_ns()
         while True:
             dt = perf_counter_ns() - startTimeNS
