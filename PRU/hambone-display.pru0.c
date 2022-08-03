@@ -107,9 +107,6 @@ Note: Follow the order of GRB to sent data and the high bit sent at first. Big-e
 #include "resource_table_0.h"
 #include "prugpio.h"
 
-volatile register uint32_t __R30;
-volatile register uint32_t __R31;
-
 /* Host-0 Interrupt sets bit 30 in register R31 */
 #define HOST_INT			((uint32_t) 1 << 30)
 
@@ -134,8 +131,6 @@ volatile register uint32_t __R31;
  * Found at linux-x.y.z/include/uapi/linux/virtio_config.h
  */
 #define VIRTIO_CONFIG_S_DRIVER_OK	4
-
-char payload[RPMSG_BUF_SIZE];
 
 #define STR_LEN             42                          // Number of pixels
 #define NANO_SEC_PER_CYCLE  5
@@ -165,6 +160,11 @@ char payload[RPMSG_BUF_SIZE];
 
 #define START 0                 // Segment begin index
 #define END 1                   // Segment end index
+
+volatile register uint32_t __R30;
+volatile register uint32_t __R31;
+
+char payload[RPMSG_BUF_SIZE];
 
 uint32_t color[STR_LEN];    	// 3 bytes each: green, red, blue
 uint32_t destColor[STR_LEN];	// If dest color differs from color, transition from color to dest.
