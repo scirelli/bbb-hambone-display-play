@@ -6,7 +6,7 @@ from os.path import basename, dirname, splitext
 
 from setuptools import find_namespace_packages, setup  # type: ignore
 
-PROJECT_NAME = "bbb-hamebone-display-play"
+PROJECT_NAME = "bbb-hamebone-python-driver"
 PYTHON_VERSION = (3, 10)
 
 if sys.version_info < PYTHON_VERSION:
@@ -40,7 +40,9 @@ setup(
     package_dir={"": "src"},
     packages=find_namespace_packages("src"),
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
-    package_data={"neopixel": ["py.typed"]},
+    package_data={
+        "hambone": ["py.typed"],
+    },
     include_package_data=True,
     test_suite="tests.unit",
     dependency_links=[],

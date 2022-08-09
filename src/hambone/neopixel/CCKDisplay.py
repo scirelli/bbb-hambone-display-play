@@ -3,8 +3,8 @@ from __future__ import annotations
 from logging import Logger
 from typing import Any
 
+from ..logger.logger import create_logger
 from .Color import HSVtoRGB
-from .logger import create_logger
 from .NeoPixelPRU import NeoPixelPRU
 
 DEFAULT_LOGGER = create_logger("CCKDisplay")

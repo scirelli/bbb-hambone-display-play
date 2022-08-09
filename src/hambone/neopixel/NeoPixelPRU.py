@@ -4,10 +4,9 @@ from logging import Logger
 from math import floor
 from typing import Any
 
-from neopixel.writer.STDOutWriter import STDOutWriter
-from neopixel.writer.Writer import Writer
-
-from .logger import create_logger
+from ..logger.logger import create_logger
+from .writer.STDOutWriter import STDOutWriter
+from .writer.Writer import Writer
 
 DEFAULT_LOGGER = create_logger("NEOPIXEL")
 DEFAULT_WRITER = STDOutWriter(None)

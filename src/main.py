@@ -5,10 +5,10 @@ from logging import Logger
 from time import sleep
 from typing import Any, Dict
 
-from neopixel import writer
-from neopixel.CCKDisplay import CCKDisplay
-from neopixel.Demo import Demo
-from neopixel.logger import create_logger
+from hambone.logger.logger import create_logger
+from hambone.neopixel import writer
+from hambone.neopixel.CCKDisplay import CCKDisplay
+from hambone.neopixel.Demo import Demo as NeoPixelDemo
 
 TWO_SECONDS = 2
 FIVE_SECONDS = 5
@@ -35,10 +35,14 @@ DEFAULT_CONFIG = {
 
 
 def main(config: Dict[str, Any]) -> None:
+    runNeoPixelDemo(config)
+
+
+def runNeoPixelDemo(config: Dict[str, Any]) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
-    log: Logger = create_logger("Demo")
+    log: Logger = create_logger("NeoPixelDemo")
     cckConfig = config["cckConfig"]
     cckConfig["logger"] = log
     cckConfig["neoPixelConfig"]["logger"] = log
@@ -50,7 +54,7 @@ def main(config: Dict[str, Any]) -> None:
     with wr as f:
         cckConfig["neoPixelConfig"]["writer"] = f
         cck = CCKDisplay(cckConfig)
-        demo = Demo(cck)
+        demo = NeoPixelDemo(cck)
 
         log.info("Init")
         cck.all_segments_off()

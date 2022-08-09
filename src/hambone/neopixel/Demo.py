@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from time import perf_counter_ns, sleep
 
-from neopixel.CCKDisplay import CCKDisplay
+from .CCKDisplay import CCKDisplay
 
 MILLI_SECOND_IN_NANO_SECOND = 1000000
 
