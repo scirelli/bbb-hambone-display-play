@@ -25,6 +25,7 @@ black = "==22.3.0"
 
 [packages]
 python-json-logger = "==2.0.2"
+adafruit-bbio = "*"
 bbb-hamebone-python-driver = {editable = true, path = "."}
 
 [requires]
