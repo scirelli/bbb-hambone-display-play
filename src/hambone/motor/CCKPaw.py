@@ -106,7 +106,7 @@ class CCKPaw:
         for c in config.get("breakers", []):
             self._logger.info("Registering breaker %", c)
             self.registerBreaker(
-                c["breakFor"], breakerFactory(c["type"], c["arguments"])
+                c["breakerFor"], breakerFactory(c["type"], c["arguments"])
             )
 
         # self.registerBreaker("present", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_MS))
