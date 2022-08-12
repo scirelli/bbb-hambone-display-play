@@ -104,6 +104,7 @@ class CCKPaw:
         }
 
         for c in config.get("breakers", []):
+            self._logger.info("Registering breaker %", c)
             self.registerBreaker(
                 c["breakFor"], breakerFactory(c["type"], c["arguments"])
             )
