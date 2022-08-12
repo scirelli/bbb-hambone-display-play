@@ -144,10 +144,15 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
 
 def runMotorDemo(config: Dict[str, Any]) -> None:
     cckPaw: CCKPaw = CCKPaw(config)
+    logger.info("Resetting paw position to home position")
     cckPaw.reset()
+    logger.info("Sleeping 10s")
     sleep(10)
+    logger.info("Presentig a check")
     cckPaw.present()
+    logger.info("Sleeping 10s")
     sleep(10)
+    logger.info("Resetting paw position to home position")
     cckPaw.reset()
 
 
