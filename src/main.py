@@ -47,6 +47,8 @@ DEFAULT_CONFIG = {
     "demo": {"which": "all"},
 }
 
+logger = create_logger("HAMBoneDemo")
+
 
 def main(config: Dict[str, Any]) -> None:
     config = defaultdict(
@@ -54,12 +56,17 @@ def main(config: Dict[str, Any]) -> None:
     )  # Need to fix this for nesting
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
+    logger.info(config)
+
     match demoConfig.get("which", "all"):
         case "display":
+            logger.info("Running display dmeo only")
             runNeoPixelDemo(cckConfig["displayConfig"])
         case "motor":
+            logger.info("Running motor dmeo only")
             runMotorDemo(cckConfig["pawConfig"])
         case _:
+            logger.info("Running all dmeos")
             runNeoPixelDemo(cckConfig["displayConfig"])
             runMotorDemo(cckConfig["pawConfig"])
 
@@ -145,7 +152,6 @@ if __name__ == "__main__":
     from sys import stdin
 
     parser = argparse.ArgumentParser()
-    logger = create_logger("HAMBone")
 
     parser.add_argument(
         "--config",
