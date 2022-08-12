@@ -25,9 +25,9 @@ class CCKDisplay:
 
     def __init__(self, config: dict[str, Any]):
         self._log: Logger = config.get("logger", DEFAULT_LOGGER)
-        self._neopixel_controller: NeoPixelPRU = NeoPixelPRU(
-            config.get("neoPixelConfig", {})
-        )
+        neoPixelConfig = config.get("neoPixelConfig", {})
+        neoPixelConfig.get("logger", self._log)
+        self._neopixel_controller: NeoPixelPRU = NeoPixelPRU(neoPixelConfig)
 
     def set_display_color(self, r: float, g: float, b: float) -> CCKDisplay:
         return self.set_segment(CCKDisplay.display_segment_index, r, g, b)

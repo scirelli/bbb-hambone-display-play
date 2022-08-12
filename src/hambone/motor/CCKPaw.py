@@ -11,9 +11,16 @@ from .driver import MotorDriver, MotorLimits
 
 DEFAULT_LOGGER = create_logger("CCKPaw")
 
-# TODO: Timer for forward/reverse run time
 # TODO: Add in IR sensors
 # TODO: Door switch
+
+
+class CCKException(Exception):
+    pass
+
+
+class MotorTimeout(CCKException):
+    pass
 
 
 class Breaker(ABC):
@@ -21,10 +28,25 @@ class Breaker(ABC):
     def shouldBreak(self) -> bool:
         pass
 
+    @abstractmethod
+    def cleanup(self) -> None:
+        pass
+
 
 class NullBreaker(Breaker):
     def shouldBreak(self) -> bool:
         return True
+
+    def cleanup(self) -> None:
+        pass
+
+
+class ErrorBreaker(Breaker):
+    def shouldBreak(self) -> bool:
+        raise CCKException("Error")
+
+    def cleanup(self) -> None:
+        pass
 
 
 @dataclass
@@ -32,7 +54,7 @@ class LimitSwitch(NullBreaker):
     name: str
 
 
-class TimeExpired(Breaker):
+class TimeExpired(ErrorBreaker):
     def __init__(self, totalTimeNs: int):
         self._totalTimeNs: int = totalTimeNs
         self._time = 0
@@ -43,16 +65,20 @@ class TimeExpired(Breaker):
 
         if (perf_counter_ns() - self._time) >= self._totalTimeNs:
             self._reset()
-            return True
+            raise MotorTimeout("Motor took to long to reach limit")
 
         return False
+
+    def cleanup(self) -> None:
+        self._reset()
 
     def _reset(self) -> None:
         self._time = 0
 
 
 class CCKPaw:
-    FIVE_SECONDS: int = int(5 * 1e9)
+    MAX_MOTOR_RUN_TIME_MS: int = 1400
+    MAX_MOTOR_RUN_TIME_NS: int = MAX_MOTOR_RUN_TIME_MS * 1000000
 
     def __init__(self, config: dict[str, Any]):
         self._motor = MotorDriver(config.get("motorConfig", {}))
@@ -63,8 +89,8 @@ class CCKPaw:
             "retract": [],
         }
 
-        self.registerBreaker("present", TimeExpired(CCKPaw.FIVE_SECONDS))
-        self.registerBreaker("retract", TimeExpired(CCKPaw.FIVE_SECONDS))
+        self.registerBreaker("present", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_NS))
+        self.registerBreaker("retract", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_NS))
 
     def reset(self) -> CCKPaw:
         return self.retract()
@@ -101,10 +127,15 @@ class CCKPaw:
             # Stop the motor before executing user code. This also stops the motor incase an exceptions get raised.
             self._motor.stop()
             for brk in breakers:
-                if (
-                    brk.shouldBreak()
-                ):  # These functions should exectute as fast as possible so as to not stutter the motor's movement
-                    return brk
+                try:
+                    if (
+                        brk.shouldBreak()
+                    ):  # These functions should exectute as fast as possible so as to not stutter the motor's movement
+                        return brk
+                except Exception:
+                    self._breakerCleanup(breakers)
+                    raise
+
             self._motor.set_state(motorState)
 
         self._motor.stop()
@@ -134,4 +165,9 @@ class CCKPaw:
             pass
 
         self._motor.stop()
+        return self
+
+    def _breakerCleanup(self, breakers: list[Breaker]) -> CCKPaw:
+        for brk in breakers:
+            brk.cleanup()
         return self

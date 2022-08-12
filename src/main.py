@@ -6,6 +6,7 @@ from time import sleep
 from typing import Any, Dict
 
 from hambone.logger.logger import create_logger
+from hambone.motor.CCKPaw import CCKPaw
 from hambone.neopixel import writer
 from hambone.neopixel.CCKDisplay import CCKDisplay
 from hambone.neopixel.Demo import Demo as NeoPixelDemo
@@ -18,42 +19,70 @@ TOTAL_ANIMATION_TIME = TEN_SECONDS
 
 DEFAULT_CONFIG = {
     "cckConfig": {
-        "neoPixelConfig": {
-            "ledCount": 42,
-            "writer": None,
+        "displayConfig": {
+            "neoPixelConfig": {
+                "ledCount": 42,
+                "writerConfig": {
+                    "type": "PRUDeviceWriter",
+                    "config": {
+                        "_fileName": "/dev/rpmsg_pru30",
+                        "fileName": "/tmp/rpmsg_pru30.txt",
+                        "fileMode": "a",
+                    },
+                },
+                "writer": None,
+            },
         },
-        "writer": {
-            "type": "PRUDeviceWriter",
-            "config": {
-                "_fileName": "/dev/rpmsg_pru30",
-                "fileName": "/tmp/rpmsg_pru30.txt",
-                "fileMode": "a",
+        "pawConfig": {
+            "motorConfig": {
+                "motorIN1Pin": "P8_7",
+                "motorIN2Pin": "P8_9",
+            },
+            "motorLimitsConfig": {
+                "frontLimitSwitchPin": "P8_12",
+                "rearLimitSwitchPin": "P8_10",
             },
         },
     },
+    "demo": {"which": "all"},
 }
 
 
 def main(config: Dict[str, Any]) -> None:
-    runNeoPixelDemo(config)
-
-
-def runNeoPixelDemo(config: Dict[str, Any]) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
+    demoConfig = config.get("demo", {})
+    cckConfig = config.get("cckConfig", {})
+    match demoConfig.get("which", "all"):
+        case "display":
+            runNeoPixelDemo(cckConfig["displayConfig"])
+        case "motor":
+            runMotorDemo(cckConfig["pawConfig"])
+        case _:
+            runNeoPixelDemo(cckConfig["displayConfig"])
+            runMotorDemo(cckConfig["pawConfig"])
+
+
+def runNeoPixelDemo(config: Dict[str, Any]) -> None:
     log: Logger = create_logger("NeoPixelDemo")
-    cckConfig = config["cckConfig"]
-    cckConfig["logger"] = log
-    cckConfig["neoPixelConfig"]["logger"] = log
-    wr = writer.__dict__[cckConfig.get("writer", {}).get("type", "STDOutWriter")](
-        cckConfig.get("writer", {}).get("config", {}).get("fileName", "")
+
+    # Add a logger instance and the writer instance to the CCKDisplay config
+    config["logger"] = log
+    neoPixelConfig = config["neoPixelConfig"]
+    neoPixelConfig["logger"] = log
+    writerConfig = neoPixelConfig.get("writerConfig", {})
+    neoPixelConfig["writerConfig"] = writerConfig
+
+    wr = writer.__dict__[writerConfig.get("type", "STDOutWriter")](
+        writerConfig.get("config", {}).get("fileName", "")
     )
     testNo = 0
 
+    # Create the writer here so file can be closed when demo ends
     with wr as f:
-        cckConfig["neoPixelConfig"]["writer"] = f
-        cck = CCKDisplay(cckConfig)
+        neoPixelConfig["writer"] = f
+        cck = CCKDisplay(config)
         demo = NeoPixelDemo(cck)
 
         log.info("Init")
@@ -101,6 +130,13 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
 
         log.info("Clean up.")
         cck.all_segments_off()
+
+
+def runMotorDemo(config: Dict[str, Any]) -> None:
+    cckPaw: CCKPaw = CCKPaw(config.get("pawConfig", {}))
+    cckPaw.reset()
+    cckPaw.present()
+    cckPaw.reset()
 
 
 if __name__ == "__main__":
