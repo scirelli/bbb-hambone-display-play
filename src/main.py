@@ -54,7 +54,7 @@ def main(config: Dict[str, Any]) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
-    logger.info(config)
+    logger.info("\n\nConfig: %s\n\n", config)
 
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})

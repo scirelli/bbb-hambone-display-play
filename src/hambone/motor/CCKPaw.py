@@ -163,6 +163,7 @@ class CCKPaw:
                     raise
 
         self._motor.stop()
+        self._breakerCleanup(breakers)
         return LimitSwitch("front" if self._limits.is_front_limit_pressed() else "rear")
 
     def _back_off_front_limit(self) -> CCKPaw:
