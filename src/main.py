@@ -54,9 +54,12 @@ def main(config: Dict[str, Any]) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
+    logger.info(config)
+
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
-    logger.info(config)
+    cckConfig["pawConfig"]["logger"] = logger
+    cckConfig["displayConfig"]["logger"] = logger
 
     match demoConfig.get("which", "all"):
         case "display":
@@ -140,7 +143,7 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
 
 
 def runMotorDemo(config: Dict[str, Any]) -> None:
-    cckPaw: CCKPaw = CCKPaw(config.get("pawConfig", {}))
+    cckPaw: CCKPaw = CCKPaw(config)
     cckPaw.reset()
     sleep(10)
     cckPaw.present()
