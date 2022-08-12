@@ -1,7 +1,7 @@
 import logging
 import traceback
 from json import JSONEncoder
-from logging import Logger, basicConfig
+from logging import Logger
 from os import getenv
 from typing import Any, Dict, Union
 
@@ -10,8 +10,6 @@ from pythonjsonlogger import jsonlogger  # type: ignore
 environment: str = getenv("HAMBONE_ENV", getenv("env", "prod")).lower()
 log_level: int = getattr(logging, getenv("LOGLEVEL", "NOTSET").upper(), logging.INFO)
 log_level = log_level if log_level else logging.INFO
-
-basicConfig(level=log_level)
 
 
 def json_translate(obj: Any) -> Union[Dict[str, Any], None]:
@@ -25,7 +23,7 @@ def create_logger(
 ) -> Logger:
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
-    logger.propagate = False
+    # logger.propagate = False
 
     return logger
 
