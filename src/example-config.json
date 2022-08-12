@@ -22,7 +22,23 @@
       "motorLimitsConfig": {
         "frontLimitSwitchPin": "P8_12",
         "rearLimitSwitchPin": "P8_10"
-      }
+      },
+      "breakers": [
+        {
+          "type": "TimeExpired",
+          "breakerFor": "present",
+          "arguments": {
+            "totalTimeMs": 1400
+          }
+        },
+        {
+          "type": "TimeExpired",
+          "breakerFor": "retract",
+          "arguments": {
+            "totalTimeMs": 1400
+          }
+        }
+      ]
     }
   },
   "demo": {

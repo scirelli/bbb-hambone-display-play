@@ -23,6 +23,10 @@ class MotorTimeout(CCKException):
     pass
 
 
+class UnknownBreaker(CCKException):
+    pass
+
+
 class Breaker(ABC):
     @abstractmethod
     def shouldBreak(self) -> bool:
@@ -55,8 +59,10 @@ class LimitSwitch(NullBreaker):
 
 
 class TimeExpired(ErrorBreaker):
-    def __init__(self, totalTimeNs: int):
-        self._totalTimeNs: int = totalTimeNs
+    MILLISECOND_IN_NANOSECOND = 1000000
+
+    def __init__(self, totalTimeMs: int):
+        self._totalTimeNs: int = totalTimeMs * TimeExpired.MILLISECOND_IN_NANOSECOND
         self._time = 0
 
     def shouldBreak(self) -> bool:
@@ -76,9 +82,17 @@ class TimeExpired(ErrorBreaker):
         self._time = 0
 
 
+def breakerFactory(typ: str, arguments: dict[str, Any]) -> Breaker:
+    return {
+        "TimeExpired": TimeExpired(**arguments),
+        "LimitSwitch": LimitSwitch(**arguments),
+        "NullBreaker": NullBreaker(),
+        "ErrorBreaker": ErrorBreaker(),
+    }[typ]
+
+
 class CCKPaw:
     MAX_MOTOR_RUN_TIME_MS: int = 1400
-    MAX_MOTOR_RUN_TIME_NS: int = MAX_MOTOR_RUN_TIME_MS * 1000000
 
     def __init__(self, config: dict[str, Any]):
         self._motor = MotorDriver(config.get("motorConfig", {}))
@@ -89,8 +103,13 @@ class CCKPaw:
             "retract": [],
         }
 
-        self.registerBreaker("present", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_NS))
-        self.registerBreaker("retract", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_NS))
+        for c in config.get("breakers", []):
+            self.registerBreaker(
+                c["breakFor"], breakerFactory(c["type"], c["arguments"])
+            )
+
+        # self.registerBreaker("present", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_MS))
+        # self.registerBreaker("retract", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_MS))
 
     def reset(self) -> CCKPaw:
         return self.retract()
@@ -108,7 +127,11 @@ class CCKPaw:
         return self
 
     def registerBreaker(self, breaker_type: str, b: Breaker) -> CCKPaw:
-        self._motorBreakChecks[breaker_type].append(b)
+        if breaker_type in self._motorBreakChecks:
+            self._motorBreakChecks[breaker_type].append(b)
+        else:
+            raise UnknownBreaker(breaker_type)
+
         return self
 
     def unregisterBreaker(self, b: Breaker) -> CCKPaw:
