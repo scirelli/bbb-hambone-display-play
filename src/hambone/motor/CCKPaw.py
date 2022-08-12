@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
 from time import perf_counter_ns
-from typing import Any, Type
+from typing import Any, Type, cast
 
 from ..logger.logger import create_logger
 from .driver import MotorDriver, MotorLimits
@@ -83,13 +83,15 @@ class TimeExpired(ErrorBreaker):
 
 
 def breakerFactory(typ: str, arguments: dict[str, Any]) -> Breaker:
-    f: dict[str, Type[Breaker]] = {
-        "TimeExpired": TimeExpired,
-        "LimitSwitch": LimitSwitch,
-        "NullBreaker": NullBreaker,
-        "ErrorBreaker": ErrorBreaker,
-    }
-    return f.get(typ, NullBreaker)(**arguments)
+    return cast(
+        dict[str, Type[Breaker]],
+        {
+            "TimeExpired": TimeExpired,
+            "LimitSwitch": LimitSwitch,
+            "NullBreaker": NullBreaker,
+            "ErrorBreaker": ErrorBreaker,
+        },
+    ).get(typ, NullBreaker)(**arguments)
 
 
 class CCKPaw:
@@ -148,20 +150,17 @@ class CCKPaw:
             not self._limits.is_front_limit_pressed()
             and not self._limits.is_rear_limit_pressed()
         ):
-            motorState = self._motor.get_state()
-            # Stop the motor before executing user code. This also stops the motor incase an exceptions get raised.
-            self._motor.stop()
             for brk in breakers:
                 try:
                     if (
                         brk.shouldBreak()
-                    ):  # These functions should exectute as fast as possible so as to not stutter the motor's movement
+                    ):  # These functions should exectute as fast as possible so as to allow limit switch readings to happen as fast as possible.
+                        self._motor.stop()
                         return brk
                 except Exception:
+                    self._motor.stop()
                     self._breakerCleanup(breakers)
                     raise
-
-            self._motor.set_state(motorState)
 
         self._motor.stop()
         return LimitSwitch("front" if self._limits.is_front_limit_pressed() else "rear")
