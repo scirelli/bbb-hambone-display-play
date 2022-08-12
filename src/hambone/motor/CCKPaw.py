@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
 from time import perf_counter_ns
-from typing import Any
+from typing import Any, Type
 
 from ..logger.logger import create_logger
 from .driver import MotorDriver, MotorLimits
@@ -83,12 +83,13 @@ class TimeExpired(ErrorBreaker):
 
 
 def breakerFactory(typ: str, arguments: dict[str, Any]) -> Breaker:
-    return {
-        "TimeExpired": TimeExpired(**arguments),
-        "LimitSwitch": LimitSwitch(**arguments),
-        "NullBreaker": NullBreaker(),
-        "ErrorBreaker": ErrorBreaker(),
-    }[typ]
+    f: dict[str, Type[Breaker]] = {
+        "TimeExpired": TimeExpired,
+        "LimitSwitch": LimitSwitch,
+        "NullBreaker": NullBreaker,
+        "ErrorBreaker": ErrorBreaker,
+    }
+    return f.get(typ, NullBreaker)(**arguments)
 
 
 class CCKPaw:
