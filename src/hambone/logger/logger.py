@@ -2,13 +2,14 @@ import logging
 import traceback
 from json import JSONEncoder
 from logging import Logger, basicConfig
-from os import getenv
+from sys import stdout
 from typing import Any, Dict, Union
 
 from pythonjsonlogger import jsonlogger  # type: ignore
 
-environment: str = getenv("HAMBONE_ENV", getenv("env", "prod")).lower()
-log_level: int = getattr(logging, getenv("LOGLEVEL", "NOTSET").upper(), logging.INFO)
+from ..environment import LOGLEVEL
+
+log_level: int = getattr(logging, LOGLEVEL, logging.INFO)
 log_level = log_level if log_level else logging.INFO
 
 basicConfig(level=log_level)
@@ -25,7 +26,26 @@ def create_logger(
 ) -> Logger:
     logger = logging.getLogger(name)
     logger.setLevel(log_level)
-    # logger.propagate = False
+
+    return logger
+
+
+def create_file_logger(
+    name: str, filename: str, log_level: int = log_level
+) -> Logger:  # pylint: disable=redefined-outer-name
+    logger = create_logger(name, log_level)
+    logger.propagate = False
+    formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+
+    stdout_handler = logging.StreamHandler(stdout)
+    stdout_handler.setLevel(logging.DEBUG)
+    stdout_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler(filename)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(stdout_handler)
 
     return logger
 
