@@ -30,7 +30,12 @@ def _output_side_effect(pin: str, direction: int):
     logger.info("output(%s, %s)", pin, "HIGH" if direction else "LOW")
 
 
+def _input_side_effect(pin: str):
+    logger.info("input(%s)", pin)
+    return GPIO.HIGH
+
+
 GPIO.setup.side_effect = _generic_side_effect_factory("setup")
 GPIO.cleanup.side_effect = _generic_side_effect_factory("cleanup")
-GPIO.input.side_effect = _generic_side_effect_factory("input")
+GPIO.input.side_effect = _input_side_effect
 GPIO.output.side_effect = _output_side_effect

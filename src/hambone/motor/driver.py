@@ -4,10 +4,7 @@ from enum import Enum
 from logging import Logger
 from typing import Any
 
-try:
-    from Adafruit_BBIO import GPIO  # pylint: disable=no-name-in-module
-except ModuleNotFoundError:
-    from hambone.Adafruit_BBIO_Mock import GPIO
+from hambone.gpio import GPIO
 
 from ..logger.logger import create_logger
 from ..singleton import AdaGPIOSingleton  # type: ignore
