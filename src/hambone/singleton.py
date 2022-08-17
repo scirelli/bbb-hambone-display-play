@@ -35,4 +35,5 @@ class AdaGPIOSingleton(type):
         del AdaGPIOSingleton._instances[cls]
         if len(AdaGPIOSingleton._instances) == 0:
             DEFAULT_LOGGER.debug("GPIO.cleanup is being called")
+            # This is recommended to be called in the docs https://github.com/adafruit/adafruit-beaglebone-io-python/blob/master/docs/GPIO.rst
             GPIO.cleanup()
