@@ -40,6 +40,7 @@ A0_H_ADDR = DEFAULT_I2C_ADDR + 0x01
 
 BOARD_1_ADDR = A0_L_ADDR
 BOARD_2_ADDR = A0_H_ADDR
+MAX = 0b111111111111
 
 i2c = busio.I2C(board.SCL, board.SDA)
 
@@ -50,4 +51,4 @@ ads = ADS.ADS1015(i2c)
 
 chan = AnalogIn(ads, ADS.P0)
 while True:
-    print(f"Value: {chan.value}, {chan.voltage}V")
+    print(f"Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
