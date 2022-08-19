@@ -49,4 +49,5 @@ from adafruit_ads1x15.analog_in import AnalogIn  # isort:skip # noqa
 ads = ADS.ADS1015(i2c)
 
 chan = AnalogIn(ads, ADS.P0)
-print(chan.value, chan.voltage)
+while True:
+    print(f"Value: {chan.value}, {chan.voltage}V")
