@@ -125,12 +125,12 @@ def main(stdscr):
         for i, chan in enumerate(sensors):
             pin = chan["pin"]
             value = pin.value
-            pin["min"] = (
+            chan["min"] = (
                 chan["min"]
                 if chan["min"] is not None and chan["min"] < value
                 else value
             )
-            pin["max"] = (
+            chan["max"] = (
                 chan["max"]
                 if chan["max"] is not None and chan["max"] > value
                 else value
@@ -141,7 +141,7 @@ def main(stdscr):
         tick = perf_counter_ns() - start_time
 
     for i, chan in enumerate(sensors):
-        print(pin)
+        print(chan)
 
 
 if __name__ == "__main__":
