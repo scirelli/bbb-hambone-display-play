@@ -2,9 +2,13 @@
 # pylint: disable=wrong-import-position unused-import wrong-import-order
 # flake8: noqa E402
 from curses import wrapper
+from time import perf_counter_ns
+from typing import Any
 
+import adafruit_ads1x15.ads1015 as ADS
 import board
 import busio
+from adafruit_ads1x15.analog_in import AnalogIn
 
 # ##############################################
 # ADS11x5 Pins
@@ -42,22 +46,7 @@ A0_H_ADDR = DEFAULT_I2C_ADDR + 0x01
 
 BOARD_1_ADDR = A0_L_ADDR
 BOARD_2_ADDR = A0_H_ADDR
-MAX = 0b111111111111
-
-i2c = busio.I2C(board.SCL, board.SDA)
-
-import adafruit_ads1x15.ads1015 as ADS  # isort:skip # noqa
-from adafruit_ads1x15.analog_in import AnalogIn  # isort:skip # noqa
-
-ads1 = ADS.ADS1015(i2c, address=BOARD_1_ADDR)
-ads2 = ADS.ADS1015(i2c, address=BOARD_2_ADDR)
-
-board_1_channels = [
-    AnalogIn(ads1, ADS.P0),
-    AnalogIn(ads1, ADS.P1),
-    AnalogIn(ads1, ADS.P2),
-    AnalogIn(ads1, ADS.P3),
-]
+MAX_VALUE = 0b111111111111
 
 # 12 averages
 # 30 readings / second
@@ -66,38 +55,84 @@ board_1_channels = [
 # next value exceeds 10% of running avg.
 # keep avg for paper in avg
 # threshold will be half between high value and low value
-board_2_channels = [
-    AnalogIn(ads2, ADS.P0),  # front_right
-    AnalogIn(ads2, ADS.P1),  # middle_right
-    AnalogIn(ads2, ADS.P2),  # back_right
-    AnalogIn(ads2, ADS.P3),
-]
+# 2 min max run time.
+# user has to tell system to calibrate and end calibrate
+
+
+def setup() -> list[Any]:
+    i2c = busio.I2C(board.SCL, board.SDA)
+
+    ads1 = ADS.ADS1015(i2c, address=BOARD_1_ADDR)
+    ads2 = ADS.ADS1015(i2c, address=BOARD_2_ADDR)
+
+    return [
+        # left side
+        {  # front_right
+            "name": "front_right_0",
+            "pin": AnalogIn(ads1, ADS.P0),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # middle_right
+            "pin": AnalogIn(ads1, ADS.P1),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # back_right
+            "pin": AnalogIn(ads1, ADS.P2),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        # right side
+        {  # not used
+            "pin": AnalogIn(ads1, ADS.P3),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # front_right
+            "pin": AnalogIn(ads2, ADS.P0),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # middle_right
+            "pin": AnalogIn(ads2, ADS.P1),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # back_right
+            "pin": AnalogIn(ads2, ADS.P2),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+        {  # not used
+            "pin": AnalogIn(ads2, ADS.P3),
+            "min": MAX_VALUE,
+            "max": 0,
+        },
+    ]
+
+
+def is_finish_check(tick) -> bool:
+    return tick >= 30000000000
 
 
 def main(stdscr):
-    while True:
+    sensors = setup()
+    start_time = perf_counter_ns()
+    tick = 0
+    while not is_finish_check(tick):
         prnt_start = 0
-        for i, chan in enumerate(board_1_channels):
+        for i, chan in enumerate(sensors):
+            pin = chan["pin"]
+            pin["min"] = min(chan["min"], pin.value)
+            pin["max"] = max(chan["max"], pin.value)
             prnt_start += 1
-            stdscr.addstr(
-                prnt_start,
-                0,
-                f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-            )
+            stdscr.addstr(prnt_start, 0, f"pin_{i}: ")
+            stdscr.refresh()
+        tick = perf_counter_ns() - start_time
 
-        prnt_start += 2
-        stdscr.addstr(prnt_start, 0, "Board 2")
-        prnt_start += 1
-
-        for i, chan in enumerate(board_2_channels):
-            prnt_start += 1
-            stdscr.addstr(
-                prnt_start,
-                0,
-                f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-            )
-
-        stdscr.refresh()
+    for i, chan in enumerate(sensors):
+        print(pin)
 
 
 if __name__ == "__main__":
