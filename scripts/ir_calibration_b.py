@@ -89,6 +89,6 @@ if __name__ == "__main__":
     logging.basicConfig(format=_format, level=logging.INFO, datefmt="%H:%M:%S")
     logging.info("Before Calibration")
     start_calibrate()
-    time.sleep(2)
+    time.sleep(30)
     finish_calibrate()
     logging.info("All Done!")
