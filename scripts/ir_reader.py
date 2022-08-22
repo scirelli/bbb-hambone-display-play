@@ -49,6 +49,25 @@ from adafruit_ads1x15.analog_in import AnalogIn  # isort:skip # noqa
 
 ads = ADS.ADS1015(i2c)
 
-chan = AnalogIn(ads, ADS.P0)
+channels = [
+    AnalogIn(ads, ADS.P0),
+    AnalogIn(ads, ADS.P1),
+    AnalogIn(ads, ADS.P2),
+    AnalogIn(ads, ADS.P3),
+]
 while True:
-    print(f"Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+    i = 0
+    chan = channels[i]
+    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+
+    i += 1
+    chan = channels[i]
+    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+
+    i += 1
+    chan = channels[i]
+    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+
+    i += 1
+    chan = channels[i]
+    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
