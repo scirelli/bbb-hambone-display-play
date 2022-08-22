@@ -64,6 +64,8 @@ def thread_function(name):
         logging.info("Calibrating")
         time.sleep(0.1)
     logging.info("Calibration Finished - we have min and max")
+    logging.info("min %s", _min)
+    logging.info("max %s", _max)
 
 
 def start_calibrate():
