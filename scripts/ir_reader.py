@@ -64,25 +64,33 @@ def main(stdscr):
         i = 0
         chan = channels[i]
         stdscr.addstr(
-            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+            i,
+            0,
+            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
         )
 
         i += 1
         chan = channels[i]
         stdscr.addstr(
-            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+            i,
+            0,
+            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
         )
 
         i += 1
         chan = channels[i]
         stdscr.addstr(
-            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+            i,
+            0,
+            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
         )
 
         i += 1
         chan = channels[i]
         stdscr.addstr(
-            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+            i,
+            0,
+            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
         )
 
         stdscr.refresh()
