@@ -49,49 +49,46 @@ i2c = busio.I2C(board.SCL, board.SDA)
 import adafruit_ads1x15.ads1015 as ADS  # isort:skip # noqa
 from adafruit_ads1x15.analog_in import AnalogIn  # isort:skip # noqa
 
-ads = ADS.ADS1015(i2c)
+ads1 = ADS.ADS1015(i2c, address=BOARD_1_ADDR)
+ads2 = ADS.ADS1015(i2c, address=BOARD_2_ADDR)
 
-channels = [
-    AnalogIn(ads, ADS.P0),
-    AnalogIn(ads, ADS.P1),
-    AnalogIn(ads, ADS.P2),
-    AnalogIn(ads, ADS.P3),
+board_1_channels = [
+    AnalogIn(ads1, ADS.P0),
+    AnalogIn(ads1, ADS.P1),
+    AnalogIn(ads1, ADS.P2),
+    AnalogIn(ads1, ADS.P3),
+]
+
+board_2_channels = [
+    AnalogIn(ads2, ADS.P0),
+    AnalogIn(ads2, ADS.P1),
+    AnalogIn(ads2, ADS.P2),
+    AnalogIn(ads2, ADS.P3),
 ]
 
 
 def main(stdscr):
     while True:
-        i = 0
-        chan = channels[i]
-        stdscr.addstr(
-            i,
-            0,
-            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-        )
+        prnt_start = 0
+        for i, chan in enumerate(board_1_channels):
+            prnt_start += 1
+            stdscr.addstr(
+                prnt_start,
+                0,
+                f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
+            )
 
-        i += 1
-        chan = channels[i]
-        stdscr.addstr(
-            i,
-            0,
-            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-        )
+        prnt_start += 1
+        stdscr.addstr(prnt_start, 0, "Board 2")
+        prnt_start += 1
 
-        i += 1
-        chan = channels[i]
-        stdscr.addstr(
-            i,
-            0,
-            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-        )
-
-        i += 1
-        chan = channels[i]
-        stdscr.addstr(
-            i,
-            0,
-            f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
-        )
+        for i, chan in enumerate(board_2_channels):
+            prnt_start += 1
+            stdscr.addstr(
+                prnt_start,
+                0,
+                f"Chan_{i} Value: {chan.value:.6f}, {chan.voltage:.6f}V, {(MAX/chan.value):.6f}",
+            )
 
         stdscr.refresh()
 
