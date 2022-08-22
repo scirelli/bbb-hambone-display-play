@@ -120,6 +120,7 @@ def main(stdscr):
     sensors = setup()
     start_time = perf_counter_ns()
     tick = 0
+    prnt_start = 0
     while not is_finish_check(tick):
         prnt_start = 0
         for i, chan in enumerate(sensors):
@@ -136,12 +137,13 @@ def main(stdscr):
                 else value
             )
             prnt_start += 1
-            stdscr.addstr(prnt_start, 0, f"pin_{i}: ")
+            stdscr.addstr(prnt_start, 0, f"pin_{i}: {chan['min']}, {chan['max']}")
             stdscr.refresh()
         tick = perf_counter_ns() - start_time
 
     for i, chan in enumerate(sensors):
-        print(chan)
+        prnt_start += 1
+        stdscr.addstr(prnt_start, 0, f"pin_{i}: {chan['min']}, {chan['max']}")
 
 
 if __name__ == "__main__":
