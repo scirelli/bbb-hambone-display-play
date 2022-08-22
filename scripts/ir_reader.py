@@ -55,19 +55,21 @@ channels = [
     AnalogIn(ads, ADS.P2),
     AnalogIn(ads, ADS.P3),
 ]
+s = ""
 while True:
     i = 0
     chan = channels[i]
-    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+    s = f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
 
     i += 1
     chan = channels[i]
-    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
 
     i += 1
     chan = channels[i]
-    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
 
     i += 1
     chan = channels[i]
-    print(f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}", end="\r")
+    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}"
+    print(s, end="\r")
