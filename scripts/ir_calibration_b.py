@@ -51,12 +51,12 @@ def read_sensors() -> None:
 
 
 def thread_function(name):
-    _min = [None] * 5
-    _max = [None] * 5
+    _min = [None] * len(channels)
+    _max = [None] * len(channels)
     logging.info("Calibrating Started(%s)", name)
     while calibrating:
         read_sensors()
-        for i in range(0, 5):
+        for i in range(0, len(channels)):
             if _min[i] is None or readings[i] < _min[i]:
                 _min[i] = readings[i]
             if _max[i] is None or readings[i] > _max[i]:
