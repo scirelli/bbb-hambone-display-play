@@ -50,10 +50,10 @@ def read_sensors() -> None:
         readings[i] = pin.value
 
 
-def thread_function():
+def thread_function(name):
     _min = [None] * 5
     _max = [None] * 5
-    logging.info("Calibrating Started")
+    logging.info("Calibrating Started(%s)", name)
     while calibrating:
         read_sensors()
         for i in range(0, 5):

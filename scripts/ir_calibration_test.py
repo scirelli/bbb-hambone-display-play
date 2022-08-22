@@ -70,44 +70,44 @@ def setup() -> list[Any]:
         {  # front_right
             "name": "front_right_0",
             "pin": AnalogIn(ads1, ADS.P0),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # middle_right
             "pin": AnalogIn(ads1, ADS.P1),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # back_right
             "pin": AnalogIn(ads1, ADS.P2),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         # right side
         {  # not used
             "pin": AnalogIn(ads1, ADS.P3),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # front_right
             "pin": AnalogIn(ads2, ADS.P0),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # middle_right
             "pin": AnalogIn(ads2, ADS.P1),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # back_right
             "pin": AnalogIn(ads2, ADS.P2),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
         {  # not used
             "pin": AnalogIn(ads2, ADS.P3),
-            "min": MAX_VALUE,
-            "max": 0,
+            "min": None,
+            "max": None,
         },
     ]
 
@@ -124,8 +124,17 @@ def main(stdscr):
         prnt_start = 0
         for i, chan in enumerate(sensors):
             pin = chan["pin"]
-            pin["min"] = min(chan["min"], pin.value)
-            pin["max"] = max(chan["max"], pin.value)
+            value = pin.value
+            pin["min"] = (
+                chan["min"]
+                if chan["min"] is not None and chan["min"] < value
+                else value
+            )
+            pin["max"] = (
+                chan["max"]
+                if chan["max"] is not None and chan["max"] > value
+                else value
+            )
             prnt_start += 1
             stdscr.addstr(prnt_start, 0, f"pin_{i}: ")
             stdscr.refresh()
