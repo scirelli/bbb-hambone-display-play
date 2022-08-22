@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # pylint: disable=wrong-import-position unused-import wrong-import-order
 # flake8: noqa E402
+from curses import wrapper
+
 import board
 import busio
 
@@ -55,21 +57,36 @@ channels = [
     AnalogIn(ads, ADS.P2),
     AnalogIn(ads, ADS.P3),
 ]
-s = ""
-while True:
-    i = 0
-    chan = channels[i]
-    s = f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
 
-    i += 1
-    chan = channels[i]
-    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
 
-    i += 1
-    chan = channels[i]
-    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+def main(stdscr):
+    while True:
+        i = 0
+        chan = channels[i]
+        stdscr.addstr(
+            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+        )
 
-    i += 1
-    chan = channels[i]
-    s += f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}"
-    print(s, end="\r")
+        i += 1
+        chan = channels[i]
+        stdscr.addstr(
+            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+        )
+
+        i += 1
+        chan = channels[i]
+        stdscr.addstr(
+            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+        )
+
+        i += 1
+        chan = channels[i]
+        stdscr.addstr(
+            i, 0, f"Chan_{i} Value: {chan.value}, {chan.voltage}V, {MAX/chan.value}\n"
+        )
+
+        stdscr.refresh()
+
+
+if __name__ == "__main__":
+    wrapper(main)
