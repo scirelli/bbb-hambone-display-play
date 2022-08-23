@@ -14,11 +14,19 @@ for i in range(5):
     calibrator.start()
     sleep(10)
     results = calibrator.stop()
-    data.extend([((i + 1), m, x, ((x - m) / x), (x - m)) for m, x in results])
+    data.extend(
+        [
+            (
+                (i + 1),
+                CCKIR.SensorIndex(sensor).name,
+                v[0],
+                v[1],
+                ((v[1] - v[0]) / v[1]),
+                (v[1] - v[0]),
+            )
+            for sensor, v in enumerate(results)
+        ]
+    )
     sleep(2)
 
-print(
-    tabulate(
-        data, headers=["Run", "Raw Min", "Raw Max", "Ratio", "Diff"], showindex="always"
-    )
-)
+print(tabulate(data, headers=["Run", "Name", "Raw Min", "Raw Max", "Ratio", "Diff"]))
