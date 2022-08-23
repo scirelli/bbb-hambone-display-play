@@ -7,5 +7,5 @@ from hambone.sensors.ir import MinMax as MinMaxCalibrator
 cckir = CCKIR({})
 calibrator = MinMaxCalibrator({"sensors": cckir.get_sensors()})
 calibrator.start()
-sleep(30)
+sleep(10)
 print(calibrator.stop())
