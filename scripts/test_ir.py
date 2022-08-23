@@ -21,7 +21,7 @@ for i in range(5):
                 CCKIR.SensorIndex(sensor).name,
                 v[0],
                 v[1],
-                f"{(((v[1] - v[0]) / v[1]) * 100):.2f}%",
+                f"{((abs(v[0] - v[1]) / ((v[0] + v[1]) / 2)) * 100):.2f}%",
                 (v[1] - v[0]),
             )
             for sensor, v in enumerate(results)
@@ -30,4 +30,4 @@ for i in range(5):
     data.extend([[""] * 6])
     sleep(2)
 
-print(tabulate(data, headers=["Run", "Name", "Min", "Max", "Ratio", "Diff"]))
+print(tabulate(data, headers=["Run", "Name", "Min", "Max", "% Diff", "Diff"]))
