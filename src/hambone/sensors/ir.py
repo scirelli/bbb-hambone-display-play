@@ -97,9 +97,11 @@ class MinMax(Calibrator):
             with MinMax._data_lock:
                 for channel in self._channels:
                     v = channel.pin.value
+                    self._logger.debug(f"value = {v}")
                     if channel.min_value is None or v < channel.min_value:
                         channel.min_value = v
                     if channel.max_value is None or v > channel.max_value:
                         channel.max_value = v
             sleep(0.1)
         self._logger.info("Calibration Finished - we have min and max")
+        self._logger.debug(f"Results: {self._channels}")
