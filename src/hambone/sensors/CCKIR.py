@@ -39,6 +39,8 @@ class CCKIR:
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
         self._sensors: list[AnalogIn] = []  # type: ignore
 
+        self._setup()
+
     def _setup(self) -> None:
         i2c = busio.I2C(board.SCL, board.SDA)
         ads1 = ADS.ADS1015(i2c, address=BOARD_1_ADDR)
