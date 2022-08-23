@@ -29,4 +29,4 @@ for i in range(5):
     )
     sleep(2)
 
-print(tabulate(data, headers=["Run", "Name", "Raw Min", "Raw Max", "Ratio", "Diff"]))
+print(tabulate(data, headers=["Run", "Name", "Min", "Max", "Ratio", "Diff"]))
