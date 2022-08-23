@@ -8,8 +8,17 @@ from hambone.sensors.ir import MinMax as MinMaxCalibrator
 
 cckir = CCKIR({})
 calibrator = MinMaxCalibrator({"sensors": cckir.get_sensors()})
-calibrator.start()
-sleep(10)
-results = calibrator.stop()
-data = [(m, x, ((x - m) / x), (x - m)) for m, x in results]
-print(tabulate(data, headers=["Raw Min", "Raw Max", "Ratio", "Diff"]))
+data = []
+
+for i in range(5):
+    calibrator.start()
+    sleep(10)
+    results = calibrator.stop()
+    data.extend([((i + 1), m, x, ((x - m) / x), (x - m)) for m, x in results])
+    sleep(2)
+
+print(
+    tabulate(
+        data, headers=["Run", "Raw Min", "Raw Max", "Ratio", "Diff"], showindex="always"
+    )
+)
