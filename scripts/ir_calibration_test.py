@@ -122,7 +122,8 @@ def main(stdscr):
     tick = 0
     prnt_start = 0
     while not is_finish_check(tick):
-        prnt_start = 0
+        stdscr.addstr(0, 0, "       min        max")
+        prnt_start = 1
         for i, chan in enumerate(sensors):
             pin = chan["pin"]
             value = pin.value
