@@ -21,7 +21,7 @@ for i in range(5):
                 CCKIR.SensorIndex(sensor).name,
                 v[0],
                 v[1],
-                ((v[1] - v[0]) / v[1]),
+                f"{(((v[1] - v[0]) / v[1]) * 100):.2}",
                 (v[1] - v[0]),
             )
             for sensor, v in enumerate(results)
