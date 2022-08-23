@@ -27,7 +27,7 @@ for i in range(5):
             for sensor, v in enumerate(results)
         ]
     )
-    data.extend([""] * 6)
+    data.extend([""])
     sleep(2)
 
 print(tabulate(data, headers=["Run", "Name", "Min", "Max", "Ratio", "Diff"]))
