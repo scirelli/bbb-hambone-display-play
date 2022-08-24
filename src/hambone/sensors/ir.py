@@ -5,13 +5,13 @@ from dataclasses import dataclass
 from logging import Logger
 from threading import Lock, Thread
 from time import sleep
-from typing import Any, Optional, Tuple, cast
+from typing import Optional, Sequence, Tuple, TypedDict, cast
 
 from adafruit_ads1x15.analog_in import AnalogIn
 
 from ..logger.logger import create_logger
+from ..stats.stats import AsTableStr
 
-DEFAULT_MAX_THREAD_RUNTIME_S = 2 * 60
 DEFAULT_LOGGER = create_logger("IR")
 
 
@@ -42,7 +42,15 @@ class Calibrator(ABC):
 
 
 class MinMax(Calibrator):
+    DEFAULT_MAX_THREAD_RUNTIME_S: float = 2 * 60
+    DEFAULT_READ_DELAY_S: float = 0.1
     _data_lock: Lock = Lock()
+
+    class Config(TypedDict, total=False):
+        maxThreadRuntimeSeconds: float
+        readDelaySeconds: float
+        logger: Logger
+        sensors: list[AnalogIn]
 
     @dataclass
     class ChannelReading:  # type: ignore
@@ -50,14 +58,35 @@ class MinMax(Calibrator):
         min_value: Optional[int] = None
         max_value: Optional[int] = None
 
+    class Stats(AsTableStr):
+        def __init__(self) -> None:
+            self._readings: int = 0
+
+        def get_headers(self) -> Sequence[str]:
+            return ["Readings"]
+
+        def get_row(self) -> Sequence[str]:
+            return [str(self._readings)]
+
+        def inc_readings(self) -> MinMax.Stats:
+            self._readings += 1
+            return self
+
+        def reset(self) -> MinMax.Stats:
+            self._readings = 0
+            return self
+
     @staticmethod
     def _default_thread(name: str) -> None:
         raise IRNoThreadExcption()
 
-    def __init__(self, config: dict[str, Any]):
+    def __init__(self, config: MinMax.Config):
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
-        self._max_thread_runtime_sec: int = config.get(
-            "maxThreadRuntimeSeconds", DEFAULT_MAX_THREAD_RUNTIME_S
+        self._max_thread_runtime_sec: float = config.get(
+            "maxThreadRuntimeSeconds", MinMax.DEFAULT_MAX_THREAD_RUNTIME_S
+        )
+        self._read_delay_sec: float = config.get(
+            "readDelaySeconds", MinMax.DEFAULT_READ_DELAY_S
         )
 
         self._calibrating: bool = False
@@ -65,6 +94,7 @@ class MinMax(Calibrator):
         self._channels: list[MinMax.ChannelReading] = [
             MinMax.ChannelReading(s) for s in config.get("sensors", [])
         ]
+        self._stats = MinMax.Stats()
 
     def add(self, sensor: AnalogIn) -> MinMax:  # type: ignore
         if self._calibrating:
@@ -93,7 +123,6 @@ class MinMax(Calibrator):
         self._logger.info("Calibrating Started")
 
         while self._calibrating:
-            self._logger.info("Calibrating...")
             with MinMax._data_lock:
                 for channel in self._channels:
                     v = channel.pin.value
@@ -102,5 +131,7 @@ class MinMax(Calibrator):
                         channel.min_value = v
                     if channel.max_value is None or v > channel.max_value:
                         channel.max_value = v
-            sleep(0.1)
+            self._stats.inc_readings()
+            sleep(self._read_delay_sec)
+
         self._logger.info("Calibration Finished - we have min and max")
