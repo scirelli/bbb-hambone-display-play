@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from logging import Logger
-from typing import Any
+from typing import TypedDict
 
 from hambone.gpio import GPIO
 
@@ -25,7 +25,11 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
         FORWARD = 1
         BACKWARD = 2
 
-    def __init__(self, config: dict[str, Any]):
+    class Config(TypedDict, total=False):
+        motorIN1Pin: str
+        motorIN2Pin: str
+
+    def __init__(self, config: MotorDriver.Config):
         self._motor_in1_pin: str = config.get("motorIN1Pin", MOTOR_IN1_PIN)
         self._motor_in2_pin: str = config.get("motorIN2Pin", MOTOR_IN2_PIN)
         self._state: MotorDriver.State = MotorDriver.State.STOP
@@ -65,7 +69,12 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
 
 
 class MotorLimits(metaclass=AdaGPIOSingleton):
-    def __init__(self, config: dict[str, Any]):
+    class Config(TypedDict, total=False):
+        logger: Logger
+        frontLimitSwitchPin: str
+        rearLimitSwitchPin: str
+
+    def __init__(self, config: MotorLimits.Config):
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
         self._front_limit_switch_pin: str = config.get(
             "frontLimitSwitchPin", FRONT_LIMIT_SWITCH_PIN

@@ -3,7 +3,7 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 from hambone.logger.logger import create_logger
 from hambone.motor.CCKPaw import CCKPaw
@@ -143,7 +143,7 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
 
 
 def runMotorDemo(config: Dict[str, Any]) -> None:
-    cckPaw: CCKPaw = CCKPaw(config)
+    cckPaw: CCKPaw = CCKPaw(cast(CCKPaw.Config, config))
     logger.info("Resetting paw position to home position")
     cckPaw.reset()
     logger.info("Sleeping 10s")

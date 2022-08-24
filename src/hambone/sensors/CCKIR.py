@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum, unique
 from logging import Logger
-from typing import Any, Tuple
+from typing import Tuple, TypedDict
 
 import adafruit_ads1x15.ads1015 as ADS
 import board
@@ -19,7 +19,6 @@ BOARD_1_ADDR = A0_L_ADDR
 BOARD_2_ADDR = A0_H_ADDR
 MAX_CHANNELS = 8  # Two boards 4 channels each
 USEABLE_CHANNELS = MAX_CHANNELS - 2  # We only have six sensors
-MAX_SENSOR_VALUE = 0b111111111111  # ADS1015 uses a 12bit value
 
 DEFAULT_LOGGER = create_logger("CCKIR")
 
@@ -35,7 +34,10 @@ class CCKIR:
         RIGHT_MIDDLE = 4
         RIGHT_REAR = 5
 
-    def __init__(self, config: dict[str, Any]):
+    class Config(TypedDict, total=False):
+        logger: Logger
+
+    def __init__(self, config: CCKIR.Config):
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
         self._sensors: list[AnalogIn] = []  # type: ignore
 

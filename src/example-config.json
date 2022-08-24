@@ -27,15 +27,15 @@
         {
           "type": "TimeExpired",
           "breakerFor": "present",
-          "arguments": {
-            "totalTimeMs": 1400
+          "config": {
+              "totalTimeMs": 1400
           }
         },
         {
           "type": "TimeExpired",
           "breakerFor": "retract",
-          "arguments": {
-            "totalTimeMs": 1400
+          "config": {
+              "totalTimeMs": 1400
           }
         }
       ]

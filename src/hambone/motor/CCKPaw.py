@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
 from time import perf_counter_ns
-from typing import Any, Type, cast
+from typing import Type, TypedDict, Union, cast
 
 from ..logger.logger import create_logger
 from .driver import MotorDriver, MotorLimits
@@ -61,7 +61,11 @@ class LimitSwitch(NullBreaker):
 class TimeExpired(ErrorBreaker):
     MILLISECOND_IN_NANOSECOND = 1000000
 
-    def __init__(self, totalTimeMs: int):
+    class Config(TypedDict, total=False):
+        totalTimeMs: int
+
+    def __init__(self, config: TimeExpired.Config):
+        totalTimeMs = config.get("totalTimeMs", 0)
         self._totalTimeNs: int = totalTimeMs * TimeExpired.MILLISECOND_IN_NANOSECOND
         self._time = 0
 
@@ -82,8 +86,11 @@ class TimeExpired(ErrorBreaker):
         self._time = 0
 
 
-def breakerFactory(typ: str, arguments: dict[str, Any]) -> Breaker:
-    return cast(
+BreakerConfig = Union[TimeExpired.Config, None]
+
+
+def breakerFactory(typ: str, config: BreakerConfig = None) -> Breaker:
+    f = cast(
         dict[str, Type[Breaker]],
         {
             "TimeExpired": TimeExpired,
@@ -91,25 +98,38 @@ def breakerFactory(typ: str, arguments: dict[str, Any]) -> Breaker:
             "NullBreaker": NullBreaker,
             "ErrorBreaker": ErrorBreaker,
         },
-    ).get(typ, NullBreaker)(**arguments)
+    )
+
+    return f.get(typ, NullBreaker)(config if config else None)  # type: ignore [call-arg]
 
 
 class CCKPaw:
     MAX_MOTOR_RUN_TIME_MS: int = 1400
 
-    def __init__(self, config: dict[str, Any]):
+    class _BreakerDef(TypedDict, total=False):
+        type: str
+        breakerFor: str
+        config: BreakerConfig
+
+    class Config(TypedDict, total=False):
+        motorConfig: MotorDriver.Config
+        motorLimitsConfig: MotorLimits.Config
+        logger: Logger
+        breakers: list[CCKPaw._BreakerDef]
+
+    def __init__(self, config: CCKPaw.Config):
         self._motor = MotorDriver(config.get("motorConfig", {}))
         self._limits = MotorLimits(config.get("motorLimitsConfig", {}))
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
+
         self._motorBreakChecks: dict[str, list[Breaker]] = {
             "present": [],
             "retract": [],
         }
-
         for c in config.get("breakers", []):
             self._logger.info("Registering breaker %s", c)
             self.registerBreaker(
-                c["breakerFor"], breakerFactory(c["type"], c["arguments"])
+                c["breakerFor"], breakerFactory(c["type"], c["config"])
             )
 
         # self.registerBreaker("present", TimeExpired(CCKPaw.MAX_MOTOR_RUN_TIME_MS))

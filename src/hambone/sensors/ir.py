@@ -1,3 +1,50 @@
+"""
+ADS11x5 Pins
+ADDR - I2C address selection pin
+   Default address is 0x48
+   The ADS11x5 chips have a base 7-bit I2C address of 0x48 (1001000) and a addressing scheme that allows different addresses using just one address pin (ADDR).
+   ┏━━━━━┯━━━━━┓
+   ┃ I2C │ADDR ┃
+   ┃ ADDR│Pin  ┃
+   ┠─────┼─────┨
+   ┃0x48 │GND  ┃
+   ┠─────┼─────┨
+   ┃0x49 │VIN  ┃
+   ┠─────┼─────┨
+   ┃0x4A │SDA  ┃
+   ┠─────┼─────┨
+   ┃0x4B │SCL  ┃
+   ┗━━━━━┷━━━━━┛
+
+ALRT           - Digital comparator output or conversion ready, can be set up and used for interrupt / asynchronous read.
+A+ and A-      - ADC power supply (VIN through a ferrite) and ADC ground (digital GND through a ferrite) these are OUTPUTs not inputs!
+A0, A1, A2, A3 - ADC input pins for each channel.
+
+Single Ended vs. Differential Inputs:
+The ADS1x15 breakouts support up to 4 Single Ended or 2 Differential inputs.
+Single Ended inputs measure the voltage between the analog input channel (A0-A3) and analog ground (GND).
+Differential inputs measure the voltage between two analog input channels.  (A0&A1 or A2&A3).
+Probe the I2C busses for connected devices:
+$ i2cdetect -y -r 0
+$ i2cdetect -y -r 1
+
+https://www.ti.com/lit/ds/symlink/ads1015.pdf?ts=1661338223297
+Input signal vs idea output code
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━━━━━┓
+┃ INPUT SINGAL               │ IDEAL OUTPUT CODE  ┃
+┃ Vin = (Vanip - Vainn)      │                    ┃
+┠────────────────────────────┼────────────────────┨
+┃ >= +FS (2^11 - 1)/2^11     │ 0x7FF0             ┃
+┠────────────────────────────┼────────────────────┨
+┃ +FS/2^11                   │ 0x0010             ┃
+┠────────────────────────────┼────────────────────┨
+┃ 0                          │ 0x0000             ┃
+┠────────────────────────────┼────────────────────┨
+┃ -FS/2^11                   │ 0xFFF0             ┃
+┠────────────────────────────┼────────────────────┨
+┃ <= -FS                     │ 0x8000             ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━━━━━┛
+"""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -53,12 +100,12 @@ class MinMax(Calibrator):
         sensors: list[AnalogIn]
 
     @dataclass
-    class ChannelReading:  # type: ignore
+    class _ChannelReading:  # type: ignore
         pin: AnalogIn  # type: ignore
         min_value: Optional[int] = None
         max_value: Optional[int] = None
 
-    class Stats(AsTableStr):
+    class _Stats(AsTableStr):
         def __init__(self) -> None:
             self._readings: int = 0
 
@@ -68,11 +115,11 @@ class MinMax(Calibrator):
         def get_row(self) -> Sequence[str]:
             return [str(self._readings)]
 
-        def inc_readings(self) -> MinMax.Stats:
+        def inc_readings(self) -> MinMax._Stats:
             self._readings += 1
             return self
 
-        def reset(self) -> MinMax.Stats:
+        def reset(self) -> MinMax._Stats:
             self._readings = 0
             return self
 
@@ -91,10 +138,10 @@ class MinMax(Calibrator):
 
         self._calibrating: bool = False
         self._calibrationthread: Thread = Thread(target=MinMax._default_thread)
-        self._channels: list[MinMax.ChannelReading] = [
-            MinMax.ChannelReading(s) for s in config.get("sensors", [])
+        self._channels: list[MinMax._ChannelReading] = [
+            MinMax._ChannelReading(s) for s in config.get("sensors", [])
         ]
-        self._stats = MinMax.Stats()
+        self._stats = MinMax._Stats()
 
     def add(self, sensor: AnalogIn) -> MinMax:  # type: ignore
         if self._calibrating:
