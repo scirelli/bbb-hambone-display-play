@@ -41,9 +41,9 @@
       ]
     },
     "irConfig": {
-      "foreground": [0, 128, 0],
-      "background": [128, 0, 0],
-      "link": [183, 215, 0],
+      "foreground": [0, 32, 0],
+      "background": [32, 0, 0],
+      "link": [11, 13, 0],
       "neoPixelConfig": {
         "ledCount": 42,
         "writerConfig": {

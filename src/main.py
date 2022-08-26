@@ -231,7 +231,8 @@ def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
                     minMaxes,
                 )
             ]
-            input("\n\nCalibration complete. Press a key to run demo.")
+            input("\n\nCalibration complete. Press a key to run demo.\n\n")
+            print("Demo engaged")
 
             while True:
                 for values in [
