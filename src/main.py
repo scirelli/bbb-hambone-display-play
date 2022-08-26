@@ -218,7 +218,7 @@ def irDemo(config: dict[str, Any]) -> None:
             calibrator.start()
             sleep(20)
             minMaxes = calibrator.stop()
-            log.debug(_ir_calibration_results_to_string(minMaxes))
+            log.debug("\n%s\n\n", _ir_calibration_results_to_string(minMaxes))
             midPoints = [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes]
             input("\n\nCalibration complete. Press a key to run demo.")
             while True:
