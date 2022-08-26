@@ -39,6 +39,20 @@
           }
         }
       ]
+    },
+    "irConfig": {
+      "neoPixelConfig": {
+        "ledCount": 42,
+        "writerConfig": {
+          "_type": "PRUDeviceWriter",
+          "type": "STDOutWriter",
+          "config": {
+            "_fileName": "/dev/rpmsg_pru30",
+            "fileName": "/tmp/rpmsg_pru30.txt",
+            "fileMode": "a"
+          }
+        }
+      }
     }
   },
   "demo": {

@@ -45,7 +45,20 @@ DEFAULT_CONFIG = {
                 "rearLimitSwitchPin": "P8_10",
             },
         },
-        "irConfig": {},
+        "irConfig": {
+            "neoPixelConfig": {
+                "ledCount": 42,
+                "writerConfig": {
+                    "type": "PRUDeviceWriter",
+                    "config": {
+                        "_fileName": "/dev/rpmsg_pru30",
+                        "fileName": "/tmp/rpmsg_pru30.txt",
+                        "fileMode": "a",
+                    },
+                },
+                "writer": None,
+            },
+        },
     },
     "demo": {"which": "all"},
 }
@@ -192,7 +205,7 @@ def irDemo(config: dict[str, Any]) -> None:
         with wr as f:
             neoPixelConfig["writer"] = f
             neopixel_controller: NeoPixelPRU = NeoPixelPRU(
-                cast(NeoPixelPRU.Config, config)
+                cast(NeoPixelPRU.Config, neoPixelConfig)
             )
             cckIR = CCKIR(cast(CCKIR.Config, config))
             while True:

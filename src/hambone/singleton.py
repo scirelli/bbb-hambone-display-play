@@ -32,6 +32,7 @@ class AdaGPIOSingleton(type):
         return cls._instances[cls]
 
     def __del__(cls):
+        DEFAULT_LOGGER.debug(AdaGPIOSingleton._instances)
         del AdaGPIOSingleton._instances[cls]
         if len(AdaGPIOSingleton._instances) == 0:
             DEFAULT_LOGGER.debug("GPIO.cleanup is being called")
