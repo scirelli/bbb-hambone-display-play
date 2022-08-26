@@ -106,3 +106,5 @@ help :
 	@grep -E '^[[:alnum:]_-]+[[:blank:]]?:.*##' $(MAKEFILE_LIST) \
 		| sort \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+# bash --init-file <(echo ". ~/.bashrc; . $project_root/bbb-hambone-python-driver/.venv/bin/activate; ")
