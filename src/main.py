@@ -197,9 +197,9 @@ def irDemo(config: dict[str, Any]) -> None:
         16,  # LEFT_FRONT
         6,  # LEFT_MIDDLE
         0,  # LEFT_REAR
-        41,  # RIGHT_FRONT = 3
-        15,  # RIGHT_MIDDLE = 4
-        5,  # RIGHT_REAR = 5
+        21,  # RIGHT_FRONT, 41
+        11,  # RIGHT_MIDDLE, 15
+        5,  # RIGHT_REAR, 5
     ]
 
     print("Press ctrl+c to exit IR demo.")
