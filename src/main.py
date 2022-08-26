@@ -233,22 +233,17 @@ def irDemo(config: dict[str, Any]) -> None:
 
 
 def _ir_calibration_results_to_string(results: Tuple[Tuple[int, int], ...]) -> str:
-    data = []
-    for i in range(len(results)):
-        data.extend(
-            [
-                (
-                    (i + 1),
-                    CCKIR.Sensor(sensor).name,
-                    v[0],
-                    v[0] + ((v[1] - v[0]) / 2),
-                    v[1],
-                    f"{((abs(v[0] - v[1]) / ((v[0] + v[1]) / 2)) * 100):.2f}%",
-                    (v[1] - v[0]),
-                )
-                for sensor, v in enumerate(results)
-            ]
+    data = [
+        (
+            CCKIR.Sensor(sensor).name,
+            v[0],
+            v[0] + ((v[1] - v[0]) / 2),
+            v[1],
+            f"{((abs(v[0] - v[1]) / ((v[0] + v[1]) / 2)) * 100):.2f}%",
+            (v[1] - v[0]),
         )
+        for sensor, v in enumerate(results)
+    ]
 
     return tabulate(data, headers=["Name", "Min", "Mid", "Max", "% Diff", "Diff"])
 
