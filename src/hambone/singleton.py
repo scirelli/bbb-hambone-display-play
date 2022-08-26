@@ -25,16 +25,22 @@ class AdaGPIOSingleton(type):
     """
 
     _instances: dict[str, Any] = {}
+    _reference_count: dict[str, Any] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super().__call__(*args, **kwargs)
+            cls._reference_count[cls] = 0
+        cls._reference_count[cls] += 1
         return cls._instances[cls]
 
     def __del__(cls):
         DEFAULT_LOGGER.debug(AdaGPIOSingleton._instances)
-        del AdaGPIOSingleton._instances[cls]
-        if len(AdaGPIOSingleton._instances) == 0:
+        DEFAULT_LOGGER.debug(cls._instances)
+        cls._reference_count -= 1
+        if cls._reference_count <= 0:
+            cls._reference_count = 0
+            del cls._instances[cls]
             DEFAULT_LOGGER.debug("GPIO.cleanup is being called")
             # This is recommended to be called in the docs https://github.com/adafruit/adafruit-beaglebone-io-python/blob/master/docs/GPIO.rst
             GPIO.cleanup()
