@@ -219,11 +219,18 @@ def irDemo(config: dict[str, Any]) -> None:
             sleep(20)
             minMaxes = calibrator.stop()
             log.debug("\n%s\n\n", _ir_calibration_results_to_string(minMaxes))
-            midPoints = [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes]
+            # At least 10% greater than mid point to turn on.
+            onThresholds = [
+                (z[0] + (z[1][1] - z[0]) * 0.1)
+                for z in zip(
+                    [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes],
+                    minMaxes,
+                )
+            ]
             input("\n\nCalibration complete. Press a key to run demo.")
             while True:
                 for sensor in CCKIR.Sensor:
-                    if cckIR.read_sensor(sensor) > midPoints[sensor.value]:
+                    if cckIR.read_sensor(sensor) > onThresholds[sensor.value]:
                         log.info("Under %s", sensor.name)
                         neopixel_controller.set_color(lights[sensor.value], 0, 128, 0)
                     else:
