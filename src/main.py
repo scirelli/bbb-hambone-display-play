@@ -12,6 +12,7 @@ from hambone.neopixel.CCKDisplay import CCKDisplay
 from hambone.neopixel.Demo import Demo as NeoPixelDemo
 from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
 from hambone.sensors.CCKIR import CCKIR
+from hambone.sensors.ir import MinMax
 
 TWO_SECONDS = 2
 FIVE_SECONDS = 5
@@ -190,7 +191,6 @@ def irDemo(config: dict[str, Any]) -> None:
         writerConfig.get("config", {}).get("fileName", "")
     )
 
-    BASE_VALUE = 0
     lights = [
         16,  # LEFT_FRONT
         6,  # LEFT_MIDDLE
@@ -208,9 +208,16 @@ def irDemo(config: dict[str, Any]) -> None:
                 cast(NeoPixelPRU.Config, neoPixelConfig)
             )
             cckIR = CCKIR(cast(CCKIR.Config, config))
+
+            calibrator = MinMax({"sensors": cckIR.get_sensors()})
+            calibrator.start()
+            sleep(20)
+            minMaxes = calibrator.stop()
+            midPoints = [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes]
+
             while True:
                 for sensor in CCKIR.Sensor:
-                    if cckIR.read_sensor(sensor) > BASE_VALUE:
+                    if cckIR.read_sensor(sensor) > midPoints[sensor.value]:
                         log.info("Under %s", sensor.name)
                         neopixel_controller.set_color(lights[sensor.value], 0, 128, 0)
                     else:
