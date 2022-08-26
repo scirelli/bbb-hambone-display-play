@@ -49,6 +49,8 @@ DEFAULT_CONFIG = {
             },
         },
         "irConfig": {
+            "foreground": [0, 128, 0],
+            "background": [128, 0, 0],
             "neoPixelConfig": {
                 "ledCount": 42,
                 "writerConfig": {
@@ -188,6 +190,8 @@ def irDemo(config: dict[str, Any]) -> None:
     neoPixelConfig["logger"] = log
     writerConfig = neoPixelConfig.get("writerConfig", {})
     neoPixelConfig["writerConfig"] = writerConfig
+    fg_color = config.get("foreground", [0, 128, 0])
+    bg_color = config.get("background", [128, 0, 0])
 
     wr = writer.__dict__[writerConfig.get("type", "STDOutWriter")](
         writerConfig.get("config", {}).get("fileName", "")
@@ -230,10 +234,10 @@ def irDemo(config: dict[str, Any]) -> None:
             while True:
                 for sensor in CCKIR.Sensor:
                     if cckIR.read_sensor(sensor) > onThresholds[sensor.value]:
-                        log.info("Under %s", sensor.name)
-                        neopixel_controller.set_color(lights[sensor.value], 0, 128, 0)
+                        # log.info("Under %s", sensor.name)
+                        neopixel_controller.set_color(lights[sensor.value], *fg_color)
                     else:
-                        neopixel_controller.set_color(lights[sensor.value], 0, 0, 0)
+                        neopixel_controller.set_color(lights[sensor.value], *bg_color)
     except KeyboardInterrupt:
         pass
 
