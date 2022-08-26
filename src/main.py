@@ -51,6 +51,7 @@ DEFAULT_CONFIG = {
         "irConfig": {
             "foreground": [0, 128, 0],
             "background": [128, 0, 0],
+            "link": [0xB7, 0xD7, 0x00],
             "neoPixelConfig": {
                 "ledCount": 42,
                 "writerConfig": {
@@ -181,7 +182,7 @@ def runMotorDemo(config: dict[str, Any]) -> None:
     cckPaw.reset()
 
 
-def irDemo(config: dict[str, Any]) -> None:
+def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
     log: Logger = create_logger("IRDemo")
 
     # Add a logger instance and the writer instance to the CCKDisplay config
@@ -192,6 +193,7 @@ def irDemo(config: dict[str, Any]) -> None:
     neoPixelConfig["writerConfig"] = writerConfig
     fg_color = config.get("foreground", [0, 128, 0])
     bg_color = config.get("background", [128, 0, 0])
+    link_color = config.get("link", [0xB7, 0xD7, 0x00])
 
     wr = writer.__dict__[writerConfig.get("type", "STDOutWriter")](
         writerConfig.get("config", {}).get("fileName", "")
@@ -232,14 +234,48 @@ def irDemo(config: dict[str, Any]) -> None:
             input("\n\nCalibration complete. Press a key to run demo.")
 
             while True:
+                for values in [
+                    cckIR.read_front(),
+                    cckIR.read_middle(),
+                    cckIR.read_rear(),
+                ]:
+                    _ir_demo_light_link(
+                        values, lights, onThresholds, neopixel_controller, link_color
+                    )
+
                 for sensor in CCKIR.Sensor:
                     if cckIR.read_sensor(sensor) > onThresholds[sensor.value]:
                         # log.info("Under %s", sensor.name)
-                        neopixel_controller.set_color(lights[sensor.value], *fg_color)
+                        neopixel_controller.set_color_buffer(
+                            lights[sensor.value], *fg_color
+                        )
                     else:
-                        neopixel_controller.set_color(lights[sensor.value], *bg_color)
+                        neopixel_controller.set_color_buffer(
+                            lights[sensor.value], *bg_color
+                        )
+
+                neopixel_controller.draw()
     except KeyboardInterrupt:
         pass
+
+
+def _ir_demo_light_link(
+    values: CCKIR.SensorPair,
+    lights: list[int],
+    onThresholds: list[float],
+    neopixel_controller: NeoPixelPRU,
+    link_color: list[int],
+) -> None:
+    left, right = values.keys()
+    if (
+        values[left] > onThresholds[left.value]
+        and values[right] > onThresholds[right.value]
+    ):
+        for x in range(lights[left.value], lights[right.value] + 1):
+            neopixel_controller.set_color_buffer(x, *link_color)
+    else:
+        for x in range(lights[left.value], lights[right.value] + 1):
+            neopixel_controller.set_color_buffer(x, 0, 0, 0)
 
 
 def _ir_demo_calibration(

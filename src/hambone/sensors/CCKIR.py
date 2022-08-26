@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum, unique
 from logging import Logger
-from typing import Tuple, TypedDict, cast
+from typing import TypedDict, cast
 
 import adafruit_ads1x15.ads1015 as ADS
 import board
@@ -33,6 +33,8 @@ class CCKIR:
         RIGHT_FRONT = 3
         RIGHT_MIDDLE = 4
         RIGHT_REAR = 5
+
+    SensorPair = dict[Sensor, int]
 
     class Config(TypedDict, total=False):
         logger: Logger
@@ -73,20 +75,26 @@ class CCKIR:
     def read_sensor(self, index: CCKIR.Sensor) -> int:
         return cast(int, self._sensors[index.value].value)
 
-    def read_front(self) -> Tuple[int, int]:
-        return (
-            self._sensors[CCKIR.Sensor.LEFT_FRONT.value].value,
-            self._sensors[CCKIR.Sensor.RIGHT_FRONT.value].value,
-        )
+    def read_front(self) -> CCKIR.SensorPair:
+        return {
+            CCKIR.Sensor.LEFT_FRONT: self._sensors[CCKIR.Sensor.LEFT_FRONT.value].value,
+            CCKIR.Sensor.RIGHT_FRONT: self._sensors[
+                CCKIR.Sensor.RIGHT_FRONT.value
+            ].value,
+        }
 
-    def read_middle(self) -> Tuple[int, int]:
-        return (
-            self._sensors[CCKIR.Sensor.LEFT_MIDDLE.value].value,
-            self._sensors[CCKIR.Sensor.RIGHT_MIDDLE.value].value,
-        )
+    def read_middle(self) -> CCKIR.SensorPair:
+        return {
+            CCKIR.Sensor.LEFT_MIDDLE: self._sensors[
+                CCKIR.Sensor.LEFT_MIDDLE.value
+            ].value,
+            CCKIR.Sensor.RIGHT_MIDDLE: self._sensors[
+                CCKIR.Sensor.RIGHT_MIDDLE.value
+            ].value,
+        }
 
-    def read_rear(self) -> Tuple[int, int]:
-        return (
-            self._sensors[CCKIR.Sensor.LEFT_REAR.value].value,
-            self._sensors[CCKIR.Sensor.RIGHT_REAR.value].value,
-        )
+    def read_rear(self) -> CCKIR.SensorPair:
+        return {
+            CCKIR.Sensor.LEFT_REAR: self._sensors[CCKIR.Sensor.LEFT_REAR.value].value,
+            CCKIR.Sensor.RIGHT_REAR: self._sensors[CCKIR.Sensor.RIGHT_REAR.value].value,
+        }
