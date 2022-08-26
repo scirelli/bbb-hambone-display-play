@@ -37,8 +37,8 @@ class AdaGPIOSingleton(type):
 
     def __del__(cls):
         DEFAULT_LOGGER.debug(AdaGPIOSingleton._instances)
-        DEFAULT_LOGGER.debug(AdaGPIOSingleton._reference_count[cls])
         if cls in AdaGPIOSingleton._reference_count:
+            DEFAULT_LOGGER.debug(AdaGPIOSingleton._reference_count[cls])
             AdaGPIOSingleton._reference_count[cls] -= 1
             if AdaGPIOSingleton._reference_count[cls] <= 0:
                 AdaGPIOSingleton._reference_count[cls] = 0
