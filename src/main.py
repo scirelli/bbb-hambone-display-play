@@ -212,13 +212,15 @@ def irDemo(config: dict[str, Any]) -> None:
             cckIR = CCKIR(cast(CCKIR.Config, config))
 
             calibrator = MinMax({"sensors": cckIR.get_sensors()})
-            input("Press enter when ready to calibrate. Remember to move paper around.")
+            input(
+                "\n\nPress enter when ready to calibrate. Remember to move paper around.\n"
+            )
             calibrator.start()
             sleep(20)
             minMaxes = calibrator.stop()
             log.debug(_ir_calibration_results_to_string(minMaxes))
             midPoints = [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes]
-
+            input("\n\nCalibration complete. Press a key to run demo.")
             while True:
                 for sensor in CCKIR.Sensor:
                     if cckIR.read_sensor(sensor) > midPoints[sensor.value]:
