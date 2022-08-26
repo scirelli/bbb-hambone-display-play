@@ -18,7 +18,7 @@ for i in range(5):
         [
             (
                 (i + 1),
-                CCKIR.SensorIndex(sensor).name,
+                CCKIR.Sensor(sensor).name,
                 v[0],
                 v[1],
                 f"{((abs(v[0] - v[1]) / ((v[0] + v[1]) / 2)) * 100):.2f}%",
