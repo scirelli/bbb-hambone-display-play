@@ -210,6 +210,7 @@ def irDemo(config: dict[str, Any]) -> None:
             cckIR = CCKIR(cast(CCKIR.Config, config))
 
             calibrator = MinMax({"sensors": cckIR.get_sensors()})
+            input("Press enter when ready to calibrate. Remember to move paper around.")
             calibrator.start()
             sleep(20)
             minMaxes = calibrator.stop()
