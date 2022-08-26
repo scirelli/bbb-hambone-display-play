@@ -246,7 +246,7 @@ def _ir_demo_calibration(
     neopixel_controller.draw()
 
     calibrator.start()
-    for i in range(20, 0):
+    for i in range(20, -1, -1):
         sleep(1)
         neopixel_controller.set_color(i + 16, 0, 0, 0)
     neopixel_controller.clear()
