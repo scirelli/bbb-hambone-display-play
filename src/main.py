@@ -210,14 +210,12 @@ def irDemo(config: dict[str, Any]) -> None:
                 cast(NeoPixelPRU.Config, neoPixelConfig)
             )
             cckIR = CCKIR(cast(CCKIR.Config, config))
-
             calibrator = MinMax({"sensors": cckIR.get_sensors()})
+
             input(
                 "\n\nPress enter when ready to calibrate. Remember to move paper around.\n"
             )
-            calibrator.start()
-            sleep(20)
-            minMaxes = calibrator.stop()
+            minMaxes = _ir_demo_calibration(calibrator, neopixel_controller)
             log.debug("\n%s\n\n", _ir_calibration_results_to_string(minMaxes))
             # At least 10% greater than mid point to turn on.
             onThresholds = [
@@ -228,6 +226,7 @@ def irDemo(config: dict[str, Any]) -> None:
                 )
             ]
             input("\n\nCalibration complete. Press a key to run demo.")
+
             while True:
                 for sensor in CCKIR.Sensor:
                     if cckIR.read_sensor(sensor) > onThresholds[sensor.value]:
@@ -237,6 +236,21 @@ def irDemo(config: dict[str, Any]) -> None:
                         neopixel_controller.set_color(lights[sensor.value], 0, 0, 0)
     except KeyboardInterrupt:
         pass
+
+
+def _ir_demo_calibration(
+    calibrator: MinMax, neopixel_controller: NeoPixelPRU
+) -> Tuple[Tuple[int, int], ...]:
+    for i in range(21):
+        neopixel_controller.set_color_buffer(i + 16, 0, 128, 0)
+    neopixel_controller.draw()
+
+    calibrator.start()
+    for i in range(20, 0):
+        sleep(1)
+        neopixel_controller.set_color(i + 16, 0, 0, 0)
+    neopixel_controller.clear()
+    return calibrator.stop()
 
 
 def _ir_calibration_results_to_string(results: Tuple[Tuple[int, int], ...]) -> str:
