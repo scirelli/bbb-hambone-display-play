@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum, unique
 from logging import Logger
-from typing import Tuple, TypedDict
+from typing import Tuple, TypedDict, cast
 
 import adafruit_ads1x15.ads1015 as ADS
 import board
@@ -25,7 +25,7 @@ DEFAULT_LOGGER = create_logger("CCKIR")
 
 class CCKIR:
     @unique
-    class SensorIndex(Enum):
+    class Sensor(Enum):
         LEFT_FRONT = 0
         LEFT_MIDDLE = 1
         LEFT_REAR = 2
@@ -67,23 +67,26 @@ class CCKIR:
     def get_sensors(self) -> list[AnalogIn]:  # type: ignore
         return self._sensors
 
-    def get_sensor(self, index: CCKIR.SensorIndex) -> AnalogIn:  # type: ignore
+    def get_sensor(self, index: CCKIR.Sensor) -> AnalogIn:  # type: ignore
         return self._sensors[index.value]
+
+    def read_sensor(self, index: CCKIR.Sensor) -> int:
+        return cast(int, self._sensors[index.value].value)
 
     def read_front(self) -> Tuple[int, int]:
         return (
-            self._sensors[CCKIR.SensorIndex.LEFT_FRONT.value].value,
-            self._sensors[CCKIR.SensorIndex.RIGHT_FRONT.value].value,
+            self._sensors[CCKIR.Sensor.LEFT_FRONT.value].value,
+            self._sensors[CCKIR.Sensor.RIGHT_FRONT.value].value,
         )
 
     def read_middle(self) -> Tuple[int, int]:
         return (
-            self._sensors[CCKIR.SensorIndex.LEFT_MIDDLE.value].value,
-            self._sensors[CCKIR.SensorIndex.RIGHT_MIDDLE.value].value,
+            self._sensors[CCKIR.Sensor.LEFT_MIDDLE.value].value,
+            self._sensors[CCKIR.Sensor.RIGHT_MIDDLE.value].value,
         )
 
     def read_rear(self) -> Tuple[int, int]:
         return (
-            self._sensors[CCKIR.SensorIndex.LEFT_REAR.value].value,
-            self._sensors[CCKIR.SensorIndex.RIGHT_REAR.value].value,
+            self._sensors[CCKIR.Sensor.LEFT_REAR.value].value,
+            self._sensors[CCKIR.Sensor.RIGHT_REAR.value].value,
         )

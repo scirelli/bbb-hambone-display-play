@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from logging import Logger
 from math import floor
-from typing import Any
+from typing import TypedDict
 
 from ..logger.logger import create_logger
 from .writer.STDOutWriter import STDOutWriter
@@ -33,7 +33,12 @@ class NeoPixelPRU:
     SEGMENT_TWO = SEGMENT_TWO
     SEGMENT_THREE = SEGMENT_THREE
 
-    def __init__(self, config: dict[str, Any]):
+    class Config(TypedDict, total=False):
+        logger: Logger
+        writer: Writer
+        ledCount: int
+
+    def __init__(self, config: NeoPixelPRU.Config):
         self._log: Logger = config.get("logger", DEFAULT_LOGGER)
         self._writer: Writer = config.get("writer", DEFAULT_WRITER)
         self._led_count: int = int(config.get("ledCount", DEFAULT_LED_COUNT))

@@ -3,13 +3,15 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 from hambone.logger.logger import create_logger
 from hambone.motor.CCKPaw import CCKPaw
 from hambone.neopixel import writer
 from hambone.neopixel.CCKDisplay import CCKDisplay
 from hambone.neopixel.Demo import Demo as NeoPixelDemo
+from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
+from hambone.sensors.CCKIR import CCKIR
 
 TWO_SECONDS = 2
 FIVE_SECONDS = 5
@@ -43,6 +45,7 @@ DEFAULT_CONFIG = {
                 "rearLimitSwitchPin": "P8_10",
             },
         },
+        "irConfig": {},
     },
     "demo": {"which": "all"},
 }
@@ -50,7 +53,7 @@ DEFAULT_CONFIG = {
 logger = create_logger("HAMBoneDemo")
 
 
-def main(config: Dict[str, Any]) -> None:
+def main(config: dict[str, Any]) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
@@ -60,6 +63,7 @@ def main(config: Dict[str, Any]) -> None:
     cckConfig = config.get("cckConfig", {})
     cckConfig["pawConfig"]["logger"] = logger
     cckConfig["displayConfig"]["logger"] = logger
+    cckConfig["irConfig"]["logger"] = logger
 
     match demoConfig.get("which", "all"):
         case "display":
@@ -68,13 +72,16 @@ def main(config: Dict[str, Any]) -> None:
         case "motor":
             logger.info("Running motor dmeo only")
             runMotorDemo(cckConfig["pawConfig"])
+        case "ir":
+            logger.info("Running IR demo only")
+            irDemo(cckConfig["irConfig"])
         case _:
             logger.info("Running all dmeos")
             runNeoPixelDemo(cckConfig["displayConfig"])
             runMotorDemo(cckConfig["pawConfig"])
 
 
-def runNeoPixelDemo(config: Dict[str, Any]) -> None:
+def runNeoPixelDemo(config: dict[str, Any]) -> None:
     log: Logger = create_logger("NeoPixelDemo")
 
     # Add a logger instance and the writer instance to the CCKDisplay config
@@ -92,7 +99,7 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
     # Create the writer here so file can be closed when demo ends
     with wr as f:
         neoPixelConfig["writer"] = f
-        cck = CCKDisplay(config)
+        cck = CCKDisplay(cast(CCKDisplay.Config, config))
         demo = NeoPixelDemo(cck)
 
         log.info("Init")
@@ -142,7 +149,7 @@ def runNeoPixelDemo(config: Dict[str, Any]) -> None:
         cck.all_segments_off()
 
 
-def runMotorDemo(config: Dict[str, Any]) -> None:
+def runMotorDemo(config: dict[str, Any]) -> None:
     cckPaw: CCKPaw = CCKPaw(cast(CCKPaw.Config, config))
     logger.info("Resetting paw position to home position")
     cckPaw.reset()
@@ -154,6 +161,49 @@ def runMotorDemo(config: Dict[str, Any]) -> None:
     sleep(10)
     logger.info("Resetting paw position to home position")
     cckPaw.reset()
+
+
+def irDemo(config: dict[str, Any]) -> None:
+    log: Logger = create_logger("IRDemo")
+
+    # Add a logger instance and the writer instance to the CCKDisplay config
+    config["logger"] = log
+    neoPixelConfig = config["neoPixelConfig"]
+    neoPixelConfig["logger"] = log
+    writerConfig = neoPixelConfig.get("writerConfig", {})
+    neoPixelConfig["writerConfig"] = writerConfig
+
+    wr = writer.__dict__[writerConfig.get("type", "STDOutWriter")](
+        writerConfig.get("config", {}).get("fileName", "")
+    )
+
+    BASE_VALUE = 0
+    lights = [
+        16,  # LEFT_FRONT
+        6,  # LEFT_MIDDLE
+        0,  # LEFT_REAR
+        41,  # RIGHT_FRONT = 3
+        15,  # RIGHT_MIDDLE = 4
+        5,  # RIGHT_REAR = 5
+    ]
+
+    print("Press ctrl+c to exit IR demo.")
+    try:
+        with wr as f:
+            neoPixelConfig["writer"] = f
+            neopixel_controller: NeoPixelPRU = NeoPixelPRU(
+                cast(NeoPixelPRU.Config, config)
+            )
+            cckIR = CCKIR(cast(CCKIR.Config, config))
+            while True:
+                for sensor in CCKIR.Sensor:
+                    if cckIR.read_sensor(sensor) > BASE_VALUE:
+                        log.info("Under %s", sensor.name)
+                        neopixel_controller.set_color(lights[sensor.value], 0, 128, 0)
+                    else:
+                        neopixel_controller.set_color(lights[sensor.value], 0, 0, 0)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

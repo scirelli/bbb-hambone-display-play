@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import Logger
-from typing import Any
+from typing import TypedDict
 
 from ..logger.logger import create_logger
 from .Color import HSVtoRGB
@@ -23,7 +23,11 @@ class CCKDisplay:
         "GREEN": [0, 255, 0],
     }
 
-    def __init__(self, config: dict[str, Any]):
+    class Config(TypedDict, total=False):
+        logger: Logger
+        neoPixelConfig: NeoPixelPRU.Config
+
+    def __init__(self, config: CCKDisplay.Config):
         self._log: Logger = config.get("logger", DEFAULT_LOGGER)
         neoPixelConfig = config.get("neoPixelConfig", {})
         neoPixelConfig.get("logger", self._log)
