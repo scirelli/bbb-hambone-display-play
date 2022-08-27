@@ -257,7 +257,7 @@ def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
 
                 neopixel_controller.draw()
     except KeyboardInterrupt:
-        pass
+        neopixel_controller.clear()
 
 
 def _ir_demo_light_link(
