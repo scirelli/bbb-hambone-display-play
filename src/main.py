@@ -208,32 +208,32 @@ def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
         5,  # RIGHT_REAR, 5
     ]
 
-    print("Press ctrl+c to exit IR demo.")
-    try:
-        with wr as f:
-            neoPixelConfig["writer"] = f
-            neopixel_controller: NeoPixelPRU = NeoPixelPRU(
-                cast(NeoPixelPRU.Config, neoPixelConfig)
-            )
-            cckIR = CCKIR(cast(CCKIR.Config, config))
-            calibrator = MinMax({"sensors": cckIR.get_sensors()})
+    with wr as f:
+        neoPixelConfig["writer"] = f
+        neopixel_controller: NeoPixelPRU = NeoPixelPRU(
+            cast(NeoPixelPRU.Config, neoPixelConfig)
+        )
+        cckIR = CCKIR(cast(CCKIR.Config, config))
+        calibrator = MinMax({"sensors": cckIR.get_sensors()})
 
-            input(
-                "\n\nPress enter when ready to calibrate. Remember to move paper around.\n"
+        input(
+            "\n\nPress enter when ready to calibrate. Remember to move paper around.\n"
+        )
+        minMaxes = _ir_demo_calibration(calibrator, neopixel_controller)
+        log.debug("\n%s\n\n", _ir_calibration_results_to_string(minMaxes))
+        # At least 10% greater than mid point to turn on.
+        onThresholds = [
+            (z[0] + (z[1][1] - z[0]) * 0.1)
+            for z in zip(
+                [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes],
+                minMaxes,
             )
-            minMaxes = _ir_demo_calibration(calibrator, neopixel_controller)
-            log.debug("\n%s\n\n", _ir_calibration_results_to_string(minMaxes))
-            # At least 10% greater than mid point to turn on.
-            onThresholds = [
-                (z[0] + (z[1][1] - z[0]) * 0.1)
-                for z in zip(
-                    [v[0] + ((v[1] - v[0]) / 2) for v in minMaxes],
-                    minMaxes,
-                )
-            ]
-            input("\n\nCalibration complete. Press a key to run demo.\n\n")
-            print("Demo engaged")
+        ]
+        input("\n\nCalibration complete. Press a key to run demo.\n\n")
+        print("Demo engaged\n")
+        print("Press ctrl+c to exit IR demo.")
 
+        try:
             while True:
                 for values in [
                     cckIR.read_front(),
@@ -256,7 +256,8 @@ def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
                         )
 
                 neopixel_controller.draw()
-    except KeyboardInterrupt:
+        except KeyboardInterrupt:
+            pass
         neopixel_controller.clear()
 
 
