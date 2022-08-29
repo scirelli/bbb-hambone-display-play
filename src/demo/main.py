@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#  pylint: disable=wrong-import-order
 from collections import defaultdict
 from logging import Logger
 from time import sleep
@@ -10,11 +9,11 @@ from tabulate import tabulate
 from hambone.logger.logger import create_logger
 from hambone.motor.CCKPaw import CCKPaw
 from hambone.neopixel import writer
-from hambone.neopixel.CCKDisplay import CCKDisplay
-from hambone.neopixel.Demo import Demo as NeoPixelDemo
 from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
 from hambone.sensors.CCKIR import CCKIR
 from hambone.sensors.ir import MinMax
+
+from .neopixel import runNeoPixelDemo
 
 TWO_SECONDS = 2
 FIVE_SECONDS = 5
@@ -87,7 +86,7 @@ def main(config: dict[str, Any]) -> None:
     match demoConfig.get("which", "all"):
         case "display":
             logger.info("Running display dmeo only")
-            runNeoPixelDemo(cckConfig["displayConfig"])
+            runNeoPixelDemo(cckConfig["displayConfig"]["neoPixelConfig"])
         case "motor":
             logger.info("Running motor dmeo only")
             runMotorDemo(cckConfig["pawConfig"])
@@ -98,74 +97,6 @@ def main(config: dict[str, Any]) -> None:
             logger.info("Running all dmeos")
             runNeoPixelDemo(cckConfig["displayConfig"])
             runMotorDemo(cckConfig["pawConfig"])
-
-
-def runNeoPixelDemo(config: dict[str, Any]) -> None:
-    log: Logger = create_logger("NeoPixelDemo")
-
-    # Add a logger instance and the writer instance to the CCKDisplay config
-    config["logger"] = log
-    neoPixelConfig = config["neoPixelConfig"]
-    neoPixelConfig["logger"] = log
-    writerConfig = neoPixelConfig.get("writerConfig", {})
-    neoPixelConfig["writerConfig"] = writerConfig
-
-    wr = writer.__dict__[writerConfig.get("type", "STDOutWriter")](
-        writerConfig.get("config", {}).get("fileName", "")
-    )
-    testNo = 0
-
-    # Create the writer here so file can be closed when demo ends
-    with wr as f:
-        neoPixelConfig["writer"] = f
-        cck = CCKDisplay(cast(CCKDisplay.Config, config))
-        demo = NeoPixelDemo(cck)
-
-        log.info("Init")
-        cck.all_segments_off()
-        sleep(TWO_SECONDS)
-
-        log.info("ATMOF-2159 Demo #%s\n\tAll display segments off.", testNo)
-        cck.all_segments_off()
-        sleep(TWO_SECONDS)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info("\tAll display segments flashing red.")
-        demo.all_Error_Flashing(TOTAL_FLASH_TIME * 1000)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info("\tDisplay segment flashing green.")
-        demo.display_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info("\tScanner segment flashing green.")
-        demo.scanner_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info("\tPresenter segment flashing green.")
-        demo.presenter_flashing(0, 255, 0, TOTAL_FLASH_TIME * 1000)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info(
-            "\tPresenter segment flashing yellow one second intervals. One second intervals is the default for flashing anyway."
-        )
-        demo.presenter_flashing(128, 128, 0, TOTAL_FLASH_TIME * 1000)
-        testNo += 1
-
-        log.info("ATMOF-2159 Demo #%d", testNo)
-        log.info(
-            "\tAnimation from all green to yellow to red as CCK counts down from 10s to retract check."
-        )
-        demo.check_retract_timer(TOTAL_ANIMATION_TIME * 1000)
-        testNo += 1
-
-        log.info("Clean up.")
-        cck.all_segments_off()
 
 
 def runMotorDemo(config: dict[str, Any]) -> None:
