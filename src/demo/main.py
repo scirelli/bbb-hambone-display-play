@@ -22,19 +22,17 @@ TOTAL_ANIMATION_TIME = TEN_SECONDS
 
 DEFAULT_CONFIG = {
     "cckConfig": {
-        "displayConfig": {
-            "neoPixelConfig": {
-                "ledCount": 42,
-                "writerConfig": {
-                    "type": "PRUDeviceWriter",
-                    "config": {
-                        "_fileName": "/dev/rpmsg_pru30",
-                        "fileName": "/tmp/rpmsg_pru30.txt",
-                        "fileMode": "a",
-                    },
+        "neoPixelConfig": {
+            "ledCount": 42,
+            "writerConfig": {
+                "type": "PRUDeviceWriter",
+                "config": {
+                    "_fileName": "/dev/rpmsg_pru30",
+                    "fileName": "/tmp/rpmsg_pru30.txt",
+                    "fileMode": "a",
                 },
-                "writer": None,
             },
+            "writer": None,
         },
         "pawConfig": {
             "motorConfig": {
@@ -79,23 +77,23 @@ def main(config: dict[str, Any]) -> None:
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
     cckConfig["pawConfig"]["logger"] = logger
-    cckConfig["displayConfig"]["logger"] = logger
+    cckConfig["neoPixelConfig"]["logger"] = logger
     cckConfig["irConfig"]["logger"] = logger
 
     match demoConfig.get("which", "all"):
         case "display":
             logger.info("Running display dmeo only")
-            runNeoPixelDemo(cckConfig["displayConfig"]["neoPixelConfig"])
+            runNeoPixelDemo(cckConfig)
         case "motor":
             logger.info("Running motor dmeo only")
-            runMotorDemo(cckConfig["pawConfig"])
+            runMotorDemo(cckConfig)
         case "ir":
             logger.info("Running IR demo only")
             irDemo(cckConfig["irConfig"])
         case _:
             logger.info("Running all dmeos")
-            runNeoPixelDemo(cckConfig["displayConfig"])
-            runMotorDemo(cckConfig["pawConfig"])
+            runNeoPixelDemo(cckConfig)
+            runMotorDemo(cckConfig)
             irDemo(cckConfig["irConfig"])
 
 

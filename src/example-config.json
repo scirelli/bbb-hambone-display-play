@@ -1,0 +1,62 @@
+{
+  "cckConfig": {
+    "neoPixelConfig": {
+    "ledCount": 42,
+    "writerConfig": {
+        "_type": "PRUDeviceWriter",
+        "type": "STDOutWriter",
+        "config": {
+        "_fileName": "/dev/rpmsg_pru30",
+        "fileName": "/tmp/rpmsg_pru30.txt",
+        "fileMode": "a"
+        }
+    }
+    },
+    "pawConfig": {
+      "motorConfig": {
+        "motorIN1Pin": "P8_7",
+        "motorIN2Pin": "P8_9"
+      },
+      "motorLimitsConfig": {
+        "frontLimitSwitchPin": "P8_12",
+        "rearLimitSwitchPin": "P8_10"
+      },
+      "breakers": [
+        {
+          "type": "TimeExpired",
+          "breakerFor": "present",
+          "config": {
+              "totalTimeMs": 1400
+          }
+        },
+        {
+          "type": "TimeExpired",
+          "breakerFor": "retract",
+          "config": {
+              "totalTimeMs": 1400
+          }
+        }
+      ]
+    },
+    "irConfig": {
+      "foreground": [0, 32, 0],
+      "background": [32, 0, 0],
+      "link": [11, 13, 0],
+      "neoPixelConfig": {
+        "ledCount": 42,
+        "writerConfig": {
+          "_type": "PRUDeviceWriter",
+          "type": "STDOutWriter",
+          "config": {
+            "_fileName": "/dev/rpmsg_pru30",
+            "fileName": "/tmp/rpmsg_pru30.txt",
+            "fileMode": "a"
+          }
+        }
+      }
+    }
+  },
+  "demo": {
+    "which": "motor"
+  }
+}
