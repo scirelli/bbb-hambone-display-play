@@ -83,10 +83,10 @@ def main(config: dict[str, Any]) -> None:
     match demoConfig.get("which", "all"):
         case "display":
             logger.info("Running display dmeo only")
-            runNeoPixelDemo(cckConfig)
+            runNeoPixelDemo(cckConfig["neoPixelConfig"])
         case "motor":
             logger.info("Running motor dmeo only")
-            runMotorDemo(cckConfig)
+            runMotorDemo(cckConfig["pawConfig"])
         case "ir":
             logger.info("Running IR demo only")
             irDemo(cckConfig["irConfig"])
