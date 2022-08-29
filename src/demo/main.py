@@ -6,14 +6,13 @@ from typing import Any, Tuple, cast
 
 from tabulate import tabulate
 
+from demo.motor import runMotorDemo
+from demo.neopixel import runNeoPixelDemo
 from hambone.logger.logger import create_logger
-from hambone.motor.CCKPaw import CCKPaw
 from hambone.neopixel import writer
 from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
 from hambone.sensors.CCKIR import CCKIR
 from hambone.sensors.ir import MinMax
-
-from .neopixel import runNeoPixelDemo
 
 TWO_SECONDS = 2
 FIVE_SECONDS = 5
@@ -97,20 +96,7 @@ def main(config: dict[str, Any]) -> None:
             logger.info("Running all dmeos")
             runNeoPixelDemo(cckConfig["displayConfig"])
             runMotorDemo(cckConfig["pawConfig"])
-
-
-def runMotorDemo(config: dict[str, Any]) -> None:
-    cckPaw: CCKPaw = CCKPaw(cast(CCKPaw.Config, config))
-    logger.info("Resetting paw position to home position")
-    cckPaw.reset()
-    logger.info("Sleeping 10s")
-    sleep(10)
-    logger.info("Presentig a check")
-    cckPaw.present()
-    logger.info("Sleeping 10s")
-    sleep(10)
-    logger.info("Resetting paw position to home position")
-    cckPaw.reset()
+            irDemo(cckConfig["irConfig"])
 
 
 def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
