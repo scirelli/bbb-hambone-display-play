@@ -22,7 +22,7 @@ TOTAL_ANIMATION_TIME = TEN_SECONDS
 
 DEFAULT_CONFIG = {
     "cckConfig": {
-        "neoPixelConfig": {
+        "neoPixelPRUConfig": {
             "ledCount": 42,
             "writerConfig": {
                 "type": "PRUDeviceWriter",
@@ -48,7 +48,7 @@ DEFAULT_CONFIG = {
             "foreground": [0, 128, 0],
             "background": [128, 0, 0],
             "link": [0xB7, 0xD7, 0x00],
-            "neoPixelConfig": {
+            "neoPixelPRUConfig": {
                 "ledCount": 42,
                 "writerConfig": {
                     "type": "PRUDeviceWriter",
@@ -77,13 +77,13 @@ def main(config: dict[str, Any]) -> None:
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
     cckConfig["pawConfig"]["logger"] = logger
-    cckConfig["neoPixelConfig"]["logger"] = logger
+    cckConfig["neoPixelPRUConfig"]["logger"] = logger
     cckConfig["irConfig"]["logger"] = logger
 
     match demoConfig.get("which", "all"):
         case "display":
             logger.info("Running display dmeo only")
-            runNeoPixelDemo(cckConfig["neoPixelConfig"])
+            runNeoPixelDemo(cckConfig["cckDisplayConfig"])
         case "motor":
             logger.info("Running motor dmeo only")
             runMotorDemo(cckConfig["pawConfig"])
@@ -102,7 +102,7 @@ def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
 
     # Add a logger instance and the writer instance to the CCKDisplay config
     config["logger"] = log
-    neoPixelConfig = config["neoPixelConfig"]
+    neoPixelConfig = config["neoPixelPRUConfig"]
     neoPixelConfig["logger"] = log
     writerConfig = neoPixelConfig.get("writerConfig", {})
     neoPixelConfig["writerConfig"] = writerConfig

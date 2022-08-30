@@ -25,11 +25,11 @@ class CCKDisplay:
 
     class Config(TypedDict, total=False):
         logger: Logger
-        neoPixelConfig: NeoPixelPRU.Config
+        neoPixelPRUConfig: NeoPixelPRU.Config
 
     def __init__(self, config: CCKDisplay.Config):
         self._log: Logger = config.get("logger", DEFAULT_LOGGER)
-        neoPixelConfig = config.get("neoPixelConfig", {})
+        neoPixelConfig = config.get("neoPixelPRUConfig", {})
         neoPixelConfig.get("logger", self._log)
         self._neopixel_controller: NeoPixelPRU = NeoPixelPRU(neoPixelConfig)
 
