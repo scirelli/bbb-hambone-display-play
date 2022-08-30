@@ -61,39 +61,56 @@ DEFAULT_CONFIG = {
                 "writer": None,
             },
         },
-    },
-    "demo": {"which": "all"},
+    }
 }
 
 logger = create_logger("HAMBoneDemo")
 
+DEFAULT_DEMO = "neopixel"
 
-def main(config: dict[str, Any]) -> None:
+
+def _runAllDemos(config: dict[str, Any]) -> None:
+    logger.info("Running all dmeos")
+    _runNeoPixelDemo(config)
+    _runMotorDemo(config)
+    _runIRDemo(config)
+
+
+def _runNeoPixelDemo(config: dict[str, Any]) -> None:
+    logger.info("Running display dmeo only")
+    runNeoPixelDemo(config["cckDisplayConfig"])
+
+
+def _runMotorDemo(config: dict[str, Any]) -> None:
+    logger.info("Running motor dmeo only")
+    runMotorDemo(config["pawConfig"])
+
+
+def _runIRDemo(config: dict[str, Any]) -> None:
+    logger.info("Running IR demo only")
+    irDemo(config["irConfig"])
+
+
+DEMOS = {
+    "all": _runAllDemos,
+    "display": _runNeoPixelDemo,
+    "neopixel": _runNeoPixelDemo,
+    "motor": _runMotorDemo,
+    "ir": _runIRDemo,
+}
+
+
+def main(config: dict[str, Any], demo: str) -> None:
     config = defaultdict(
         dict, {**DEFAULT_CONFIG, **config}
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 
-    demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
     cckConfig["pawConfig"]["logger"] = logger
     cckConfig["irConfig"]["logger"] = logger
 
-    match demoConfig.get("which", "all"):
-        case "display":
-            logger.info("Running display dmeo only")
-            runNeoPixelDemo(cckConfig["cckDisplayConfig"])
-        case "motor":
-            logger.info("Running motor dmeo only")
-            runMotorDemo(cckConfig["pawConfig"])
-        case "ir":
-            logger.info("Running IR demo only")
-            irDemo(cckConfig["irConfig"])
-        case _:
-            logger.info("Running all dmeos")
-            runNeoPixelDemo(cckConfig)
-            runMotorDemo(cckConfig)
-            irDemo(cckConfig["irConfig"])
+    DEMOS.get(demo, _runAllDemos)(cckConfig)
 
 
 def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
@@ -240,9 +257,17 @@ if __name__ == "__main__":
         help="The config file.",
     )
 
+    parser.add_argument(
+        "-d",
+        "--demo",
+        choices=DEMOS.keys(),
+        default=DEFAULT_DEMO,
+        help=f"Choose a demo to run. default ({DEFAULT_DEMO})",
+    )
+
     args = parser.parse_args()
 
     try:
-        main(load(args.config))
+        main(load(args.config), args.demo)
     except decoder.JSONDecodeError:
         logger.warning("Unable to parse config file.")
