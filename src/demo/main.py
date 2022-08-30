@@ -77,7 +77,6 @@ def main(config: dict[str, Any]) -> None:
     demoConfig = config.get("demo", {})
     cckConfig = config.get("cckConfig", {})
     cckConfig["pawConfig"]["logger"] = logger
-    cckConfig["neoPixelPRUConfig"]["logger"] = logger
     cckConfig["irConfig"]["logger"] = logger
 
     match demoConfig.get("which", "all"):
