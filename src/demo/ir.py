@@ -2,7 +2,7 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, Tuple, TypedDict, cast
+from typing import Any, Tuple, cast
 
 from tabulate import tabulate
 
@@ -12,7 +12,7 @@ from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
 from hambone.sensors.CCKIR import CCKIR
 from hambone.sensors.ir import MinMax
 
-from .neopixel import NeoPixelPRUConfig
+from .config import Config, IRConfig
 
 DEFAULT_CONFIG = {
     "irConfig": {
@@ -37,18 +37,7 @@ DEFAULT_CONFIG = {
 logger = create_logger("IRDemo")
 
 
-class IRConfig(TypedDict, total=False):
-    foreground: list[int]
-    background: list[int]
-    link: list[int]
-    neoPixelPRUConfig: NeoPixelPRUConfig
-
-
-class Config(TypedDict, total=False):
-    irConfig: IRConfig
-
-
-def irDemo(config: dict[str, Any]) -> None:  # pylint: disable = too-many-locals
+def irDemo(config: IRConfig) -> None:  # pylint: disable = too-many-locals
     log: Logger = create_logger("IRDemo")
 
     # Add a logger instance and the writer instance to the CCKDisplay config
@@ -177,16 +166,16 @@ def _ir_calibration_results_to_string(results: Tuple[Tuple[int, int], ...]) -> s
     return tabulate(data, headers=["Name", "Min", "Mid", "Max", "% Diff", "Diff"])
 
 
-def _main(config: dict[str, Any]) -> None:
-    config = defaultdict(
-        dict, {**DEFAULT_CONFIG, **config}
+def _main(config: Config) -> None:
+    config = cast(
+        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)})
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 
     cckConfig = config.get("cckConfig", {})
     cckConfig["irConfig"]["logger"] = logger
 
-    irDemo(cckConfig)
+    irDemo(cckConfig["irConfig"])
 
 
 if __name__ == "__main__":

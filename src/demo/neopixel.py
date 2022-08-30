@@ -2,12 +2,13 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, TypedDict, cast
+from typing import Any, cast
 
 from hambone.logger.logger import create_logger
 from hambone.neopixel import writer
 from hambone.neopixel.CCKDisplay import CCKDisplay
 
+from .config import CCKDisplayConfig, Config
 from .neopixelDemo import Demo as NeoPixelDemo
 
 TWO_SECONDS = 2
@@ -15,32 +16,6 @@ FIVE_SECONDS = 5
 TEN_SECONDS = 10
 TOTAL_FLASH_TIME = TEN_SECONDS
 TOTAL_ANIMATION_TIME = TEN_SECONDS
-
-
-class WriterFileConfig(TypedDict, total=False):
-    fileName: str
-    fileMode: str
-
-
-class WriterConfig(TypedDict, total=False):
-    type: str
-    config: WriterFileConfig
-
-
-class NeoPixelPRUConfig(TypedDict, total=False):
-    ledCount: int
-    writerConfig: WriterConfig
-    writer: writer.Writer
-    logger: Logger
-
-
-class CCKDisplayConfig(TypedDict, total=False):
-    neoPixelPRUConfig: NeoPixelPRUConfig
-
-
-class CCKConfig(TypedDict, total=False):
-    cckDisplayConfig: CCKDisplayConfig
-    logger: Logger
 
 
 DEFAULT_LOGGER = create_logger("NeoPixelDemo")
@@ -59,7 +34,6 @@ DEFAULT_CONFIG = {
             "writer": None,
         },
         "logger": DEFAULT_LOGGER,
-        "demo": {},
     },
 }
 log: Logger = DEFAULT_LOGGER
@@ -126,15 +100,14 @@ def runNeoPixelDemo(config: CCKDisplayConfig) -> None:
         cck.all_segments_off()
 
 
-def _main(config: CCKConfig) -> None:
+def _main(config: Config) -> None:
     config = cast(
-        CCKConfig,
+        Config,
         defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)}),
     )  # Need to fix this for nesting
     log.info("\n\nConfig: %s\n\n", config)
 
-    cckDisplayConfig: CCKDisplayConfig = config.get("cckDisplayConfig", {})
-    runNeoPixelDemo(cckDisplayConfig)
+    runNeoPixelDemo(config["cckConfig"]["cckDisplayConfig"])
 
 
 if __name__ == "__main__":
