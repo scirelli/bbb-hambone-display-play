@@ -33,16 +33,19 @@ def _runAllDemos(config: CCKConfig) -> None:
 
 def _runNeoPixelDemo(config: CCKConfig) -> None:
     logger.info("Running display dmeo only")
+    config["cckDisplayConfig"]["logger"] = logger
     runNeoPixelDemo(config["cckDisplayConfig"])
 
 
 def _runMotorDemo(config: CCKConfig) -> None:
     logger.info("Running motor dmeo only")
+    config["pawConfig"]["logger"] = logger
     runMotorDemo(config["pawConfig"])
 
 
 def _runIRDemo(config: CCKConfig) -> None:
     logger.info("Running IR demo only")
+    config["irConfig"]["logger"] = logger
     irDemo(config["irConfig"])
 
 
@@ -61,12 +64,7 @@ def main(config: Config, demo: str) -> None:
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 
-    cckConfig = config.get("cckConfig", {})
-    cckConfig["cckDisplayConfig"]["logger"] = logger
-    cckConfig["pawConfig"]["logger"] = logger
-    cckConfig["irConfig"]["logger"] = logger
-
-    DEMOS.get(demo, _runAllDemos)(cckConfig)
+    DEMOS.get(demo, _runAllDemos)(config.get("cckConfig", {}))
 
 
 if __name__ == "__main__":
