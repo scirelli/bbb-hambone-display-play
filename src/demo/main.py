@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Any, cast
 
 from demo.config import CCKConfig, Config
+from demo.doorSwitch import doorDemo
 from demo.ir import DEFAULT_CONFIG as irDefaultConfig
 from demo.ir import irDemo
 from demo.motor import DEFAULT_CONFIG as pawDefaultConfig
@@ -49,12 +50,19 @@ def _runIRDemo(config: CCKConfig) -> None:
     irDemo(config["irConfig"])
 
 
+def _runDoorDemo(config: CCKConfig) -> None:
+    logger.info("Running door demo only")
+    config["doorConfig"]["logger"] = logger
+    doorDemo(config["doorConfig"])
+
+
 DEMOS = {
     "all": _runAllDemos,
     "display": _runNeoPixelDemo,
     "neopixel": _runNeoPixelDemo,
     "motor": _runMotorDemo,
     "ir": _runIRDemo,
+    "door": _runDoorDemo,
 }
 
 

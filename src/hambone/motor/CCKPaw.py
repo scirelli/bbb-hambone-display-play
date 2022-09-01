@@ -11,9 +11,6 @@ from .driver import MotorDriver, MotorLimits
 
 DEFAULT_LOGGER = create_logger("CCKPaw")
 
-# TODO: Add in IR sensors
-# TODO: Door switch
-
 
 class CCKException(Exception):
     pass

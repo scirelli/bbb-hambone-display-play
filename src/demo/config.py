@@ -50,10 +50,19 @@ class IRConfig(TypedDict, total=False):
     logger: Logger
 
 
+class DoorConfig(TypedDict, total=False):
+    doorSwitchPin: str
+    foreground: list[int]
+    background: list[int]
+    neoPixelPRUConfig: NeoPixelPRUConfig
+    logger: Logger
+
+
 class CCKConfig(TypedDict, total=False):
     irConfig: IRConfig
     pawConfig: PawConfig
     cckDisplayConfig: CCKDisplayConfig
+    doorConfig: DoorConfig
     logger: Logger
 
 

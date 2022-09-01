@@ -12,7 +12,6 @@ from ..singleton import AdaGPIOSingleton  # type: ignore
 # Default Pins
 FRONT_LIMIT_SWITCH_PIN = "P8_12"
 REAR_LIMIT_SWITCH_PIN = "P8_10"
-DOOR_SWITCH_PIN = "P8_8"
 MOTOR_IN1_PIN = "P8_7"  # Drive backward (toward BBB)
 MOTOR_IN2_PIN = "P8_9"  # Drive forward (away from BBB)
 
@@ -89,7 +88,7 @@ class MotorLimits(metaclass=AdaGPIOSingleton):
         GPIO.setup(self._rear_limit_switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def is_front_limit_pressed(self) -> bool:
-        return not GPIO.input(FRONT_LIMIT_SWITCH_PIN)
+        return not GPIO.input(self._front_limit_switch_pin)
 
     def is_rear_limit_pressed(self) -> bool:
-        return not GPIO.input(REAR_LIMIT_SWITCH_PIN)
+        return not GPIO.input(self._rear_limit_switch_pin)
