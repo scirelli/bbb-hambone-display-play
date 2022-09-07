@@ -31,8 +31,10 @@ def create_logger(
 
 
 def create_file_logger(
-    name: str, filename: str, log_level: int = log_level
-) -> Logger:  # pylint: disable=redefined-outer-name
+    name: str,
+    filename: str,
+    log_level: int = log_level,  # pylint: disable=redefined-outer-name
+) -> Logger:
     logger = create_logger(name, log_level)
     logger.propagate = False
     formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")

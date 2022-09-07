@@ -31,11 +31,15 @@ test: .develop
 
 .PHONY: vtest
 vtest: .develop ## Verbose tests
-	@pipenv run pytest -s -v
+	@pipenv run pytest -v
 
 .PHONY: vvtest
 vvtest: .develop ## More verbose tests
 	@pipenv run pytest -vv
+
+.PHONY: dbtest
+dbtest: .develop ## Debuggable tests
+	@pipenv run pytest --capture=no -vv
 
 .PHONY: viewCoverage
 viewCoverage: htmlcov ## View the last coverage run
