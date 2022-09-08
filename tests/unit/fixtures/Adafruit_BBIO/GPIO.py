@@ -9,15 +9,6 @@ from hambone.logger.logger import create_file_logger
 tempFilename = path.join(mkdtemp(), f"GPIO_{datetime.now().strftime('%H-%M-%S')}")
 logger = create_file_logger("MOCK_GPIO", tempFilename)
 
-GPIO = MagicMock()
-
-type(GPIO).IN = PropertyMock(return_value=1)
-type(GPIO).OUT = PropertyMock(return_value=0)
-type(GPIO).PUD_DOWN = PropertyMock(return_value=0)
-type(GPIO).PUD_UP = PropertyMock(return_value=1)
-type(GPIO).LOW = PropertyMock(return_value=0)
-type(GPIO).HIGH = PropertyMock(return_value=1)
-
 
 def _generic_side_effect_factory(name: str):
     def f(*args, **kwargs):
@@ -35,7 +26,22 @@ def _input_side_effect(pin: str):
     return GPIO.HIGH
 
 
-GPIO.setup.side_effect = _generic_side_effect_factory("setup")
-GPIO.cleanup.side_effect = _generic_side_effect_factory("cleanup")
-GPIO.input.side_effect = _input_side_effect
-GPIO.output.side_effect = _output_side_effect
+def create_GPIO(name="default_gpio_mock"):
+    gpio = MagicMock(name=name)
+
+    type(gpio).IN = PropertyMock(return_value=1)
+    type(gpio).OUT = PropertyMock(return_value=0)
+    type(gpio).PUD_DOWN = PropertyMock(return_value=0)
+    type(gpio).PUD_UP = PropertyMock(return_value=1)
+    type(gpio).LOW = PropertyMock(return_value=0)
+    type(gpio).HIGH = PropertyMock(return_value=1)
+
+    gpio.setup.side_effect = _generic_side_effect_factory("setup")
+    gpio.cleanup.side_effect = _generic_side_effect_factory("cleanup")
+    gpio.input.side_effect = _input_side_effect
+    gpio.output.side_effect = _output_side_effect
+
+    return GPIO
+
+
+GPIO = create_GPIO()
