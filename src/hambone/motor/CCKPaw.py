@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from logging import Logger
 from time import perf_counter_ns
-from typing import Type, TypedDict, Union, cast
+from typing import Dict, Type, Union, cast
+
+from typing_extensions import TypedDict
 
 from ..logger.logger import create_logger
 from .driver import MotorDriver, MotorLimits
@@ -88,7 +90,7 @@ BreakerConfig = Union[TimeExpired.Config, None]
 
 def breakerFactory(typ: str, config: BreakerConfig = None) -> Breaker:
     f = cast(
-        dict[str, Type[Breaker]],
+        Dict[str, Type[Breaker]],
         {
             "TimeExpired": TimeExpired,
             "LimitSwitch": LimitSwitch,

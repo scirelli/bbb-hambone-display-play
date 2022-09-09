@@ -10,7 +10,8 @@ PYTHON=$(VENV_BIN)/python
 all: test
 
 $(VENV_DIR):
-	python3 -m venv --prompt $(notdir $(CURDIR)) ./$(VENV_DIR)
+	@echo 'Createing a virtual environment'
+	@python3 -m venv --prompt $(notdir $(CURDIR)) ./$(VENV_DIR)
 	@echo 'Environment created. Run "source ./$(VENV_DIR)/bin/activate" to activate the virtual environment.\n"deactivate" to exit it.'
 
 .update-pip: ## Update pip
@@ -55,18 +56,22 @@ test: .develop  ## Run unit tests
 
 .PHONY: vtest
 vtest: .develop ## Verbose tests
-	@$(VENV_BIN)/pytest -s -v
+	@$(VENV_BIN)/pytest -v
 
 .PHONY: vvtest
 vvtest: .develop ## More verbose tests
 	@$(VENV_BIN)/pytest -vv
+
+.PHONY: dbtest
+dbtest: .develop ## Debuggable tests
+	@$(VENV_BIN)/pytest --capture=no -vv
 
 .PHONY: viewCoverage
 viewCoverage: htmlcov ## View the last coverage run
 	open -a "Google Chrome" htmlcov/index.html
 
 .PHONY: shell
-shell: $(VENV_DIR)
+shell: $(VENV_DIR) ## Open a virtual environment
 	@echo 'Activating virtual environment.' && $(SHELL) --init-file <(echo ". ~/.bashrc; . $(VENV_BIN)/activate;")
 
 .PHONY: clean

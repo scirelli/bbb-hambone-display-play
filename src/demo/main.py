@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from collections import defaultdict
-from typing import Any, cast
+from typing import Any, Dict, cast
 
 from demo.config import CCKConfig, Config
 from demo.doorSwitch import doorDemo
@@ -68,7 +68,7 @@ DEMOS = {
 
 def main(config: Config, demo: str) -> None:
     config = cast(
-        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)})
+        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(Dict[str, Any], config)})
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 

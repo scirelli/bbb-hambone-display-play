@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from enum import Enum
 from logging import Logger
-from typing import TypedDict
+
+from typing_extensions import TypedDict
 
 from hambone.gpio import GPIO
 
@@ -52,19 +53,18 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
         return self._state
 
     def set_state(self, s: MotorDriver.State) -> None:
-        match s:
-            case MotorDriver.State.FORWARD:
-                GPIO.output(self._motor_in1_pin, GPIO.LOW)
-                GPIO.output(self._motor_in2_pin, GPIO.HIGH)
-                self._state = MotorDriver.State.FORWARD
-            case MotorDriver.State.BACKWARD:
-                GPIO.output(self._motor_in2_pin, GPIO.LOW)
-                GPIO.output(self._motor_in1_pin, GPIO.HIGH)
-                self._state = MotorDriver.State.BACKWARD
-            case _:
-                GPIO.output(self._motor_in2_pin, GPIO.LOW)
-                GPIO.output(self._motor_in1_pin, GPIO.LOW)
-                self._state = MotorDriver.State.STOP
+        if s == MotorDriver.State.FORWARD:
+            GPIO.output(self._motor_in1_pin, GPIO.LOW)
+            GPIO.output(self._motor_in2_pin, GPIO.HIGH)
+            self._state = MotorDriver.State.FORWARD
+        elif s == MotorDriver.State.BACKWARD:
+            GPIO.output(self._motor_in2_pin, GPIO.LOW)
+            GPIO.output(self._motor_in1_pin, GPIO.HIGH)
+            self._state = MotorDriver.State.BACKWARD
+        else:
+            GPIO.output(self._motor_in2_pin, GPIO.LOW)
+            GPIO.output(self._motor_in1_pin, GPIO.LOW)
+            self._state = MotorDriver.State.STOP
 
 
 class MotorLimits(metaclass=AdaGPIOSingleton):

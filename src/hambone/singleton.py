@@ -1,5 +1,5 @@
 # type: ignore
-from typing import Any
+from typing import Any, Dict
 
 from hambone.gpio import GPIO
 
@@ -9,7 +9,7 @@ DEFAULT_LOGGER = create_logger("Singleton")
 
 
 class Singleton(type):
-    _instances: dict[str, Any] = {}
+    _instances: Dict[str, Any] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -24,8 +24,8 @@ class AdaGPIOSingleton(type):
     Will need to implement thread safety if threads are going to be used.
     """
 
-    _instances: dict[str, Any] = {}
-    _reference_count: dict[str, int] = {}
+    _instances: Dict[str, Any] = {}
+    _reference_count: Dict[str, int] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in AdaGPIOSingleton._instances:

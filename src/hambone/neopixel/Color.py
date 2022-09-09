@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import floor
-from typing import ClassVar
+from typing import ClassVar, Dict
 
 
 @dataclass
@@ -16,7 +16,7 @@ class Color:
         return f"{floor(self.r)} {floor(self.g)} {floor(self.b)}"
 
 
-def HSVtoRGB(h: float, s: float, v: float) -> dict[str, int]:
+def HSVtoRGB(h: float, s: float, v: float) -> Dict[str, int]:
     r: float = 0.0
     g: float = 0.0
     b: float = 0.0
@@ -31,31 +31,32 @@ def HSVtoRGB(h: float, s: float, v: float) -> dict[str, int]:
     p = v * (1 - s)
     q = v * (1 - f * s)
     t = v * (1 - (1 - f) * s)
-    match i % 6:
-        case 0:
-            r = v
-            g = t
-            b = p
-        case 1:
-            r = q
-            g = v
-            b = p
-        case 2:
-            r = p
-            g = v
-            b = t
-        case 3:
-            r = p
-            g = q
-            b = v
-        case 4:
-            r = t
-            g = p
-            b = v
-        case 5:
-            r = v
-            g = p
-            b = q
+
+    m = i % 6
+    if m == 0:
+        r = v
+        g = t
+        b = p
+    elif m == 1:
+        r = q
+        g = v
+        b = p
+    elif m == 2:
+        r = p
+        g = v
+        b = t
+    elif m == 3:
+        r = p
+        g = q
+        b = v
+    elif m == 4:
+        r = t
+        g = p
+        b = v
+    elif m == 5:
+        r = v
+        g = p
+        b = q
 
     return {"r": round(r * 255), "g": round(g * 255), "b": round(b * 255)}
 

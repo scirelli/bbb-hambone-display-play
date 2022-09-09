@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from logging import Logger
-from typing import TypedDict
+
+from typing_extensions import TypedDict
 
 from ..logger.logger import create_logger
 from .Color import HSVtoRGB

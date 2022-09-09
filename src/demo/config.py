@@ -1,5 +1,7 @@
 from logging import Logger
-from typing import TypedDict
+from typing import List
+
+from typing_extensions import TypedDict
 
 from hambone.neopixel import writer
 
@@ -43,17 +45,17 @@ class PawConfig(TypedDict, total=False):
 
 
 class IRConfig(TypedDict, total=False):
-    foreground: list[int]
-    background: list[int]
-    link: list[int]
+    foreground: List[int]
+    background: List[int]
+    link: List[int]
     neoPixelPRUConfig: NeoPixelPRUConfig
     logger: Logger
 
 
 class DoorConfig(TypedDict, total=False):
     doorSwitchPin: str
-    foreground: list[int]
-    background: list[int]
+    foreground: List[int]
+    background: List[int]
     neoPixelPRUConfig: NeoPixelPRUConfig
     logger: Logger
 

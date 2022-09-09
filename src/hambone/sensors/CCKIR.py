@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from enum import Enum, unique
 from logging import Logger
-from typing import TypedDict
+from typing import Dict
 
 import adafruit_ads1x15.ads1015 as ADS
 import board
 import busio
 from adafruit_ads1x15.analog_in import AnalogIn
+from typing_extensions import TypedDict
 
 from ..logger.logger import create_logger
 
@@ -34,7 +35,7 @@ class CCKIR:
         RIGHT_MIDDLE = 4
         RIGHT_REAR = 5
 
-    SensorPair = dict[Sensor, int]
+    SensorPair = Dict[Sensor, int]
 
     class Config(TypedDict, total=False):
         logger: Logger

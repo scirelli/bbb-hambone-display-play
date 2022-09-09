@@ -6,3 +6,4 @@ adafruit-bbio; platform_machine=='armv7l'
 wheel
 adafruit-circuitpython-ads1x15
 tabulate
+typing-extensions==4.2.0

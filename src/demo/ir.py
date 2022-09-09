@@ -2,7 +2,7 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, Tuple, cast
+from typing import Any, Dict, List, Tuple, cast
 
 from tabulate import tabulate
 
@@ -118,10 +118,10 @@ def irDemo(config: IRConfig) -> None:  # pylint: disable = too-many-locals
 
 def _ir_demo_light_link(
     values: CCKIR.SensorPair,
-    lights: list[int],
-    onThresholds: list[float],
+    lights: List[int],
+    onThresholds: List[float],
     neopixel_controller: NeoPixelPRU,
-    link_color: list[int],
+    link_color: List[int],
 ) -> None:
     left, right = values.keys()
     if (
@@ -168,7 +168,7 @@ def _ir_calibration_results_to_string(results: Tuple[Tuple[int, int], ...]) -> s
 
 def _main(config: Config) -> None:
     config = cast(
-        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)})
+        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(Dict[str, Any], config)})
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 

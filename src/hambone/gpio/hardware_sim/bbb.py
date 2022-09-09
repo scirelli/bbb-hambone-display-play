@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 from .hardwarecontroller import HardwareController
 from .pin import Pin, PinState
@@ -7,10 +7,10 @@ from .pin import Pin, PinState
 # Make these more realistic with physical pins and headers
 class BBB(HardwareController):
     _NOT_EXIST = 0
-    _p8: list[Pin] = [
+    _p8: List[Pin] = [
         Pin(PinState.LOW.value) for _ in range(0, 47)
     ]  # Real pins are 1 to 46. 0 doesn't exist
-    _p9: list[Pin] = [Pin(PinState.LOW.value) for _ in range(0, 47)]
+    _p9: List[Pin] = [Pin(PinState.LOW.value) for _ in range(0, 47)]
 
     def read_pin(self, pin: int) -> int:
         raise UNKNOWN_PIN
@@ -26,13 +26,14 @@ class BBB(HardwareController):
         header, pin = self._parse_pin_name(pin_name)
         header[pin].state = PinState(state).value
 
-    def _parse_pin_name(self, pin: str) -> Tuple[list[Pin], int]:
+    def _parse_pin_name(self, pin: str) -> Tuple[List[Pin], int]:
         header, pin = pin.split("_")
-        match header.upper():
-            case "P8":
-                return (self._p8, int(pin))
-            case "P9":
-                return (self._p9, int(pin))
+
+        header = header.upper()
+        if header == "P8":
+            return (self._p8, int(pin))
+        if header == "P9":
+            return (self._p9, int(pin))
 
         raise UNKNOWN_PIN
 

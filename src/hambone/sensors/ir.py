@@ -52,9 +52,10 @@ from dataclasses import dataclass
 from logging import Logger
 from threading import Lock, Thread
 from time import sleep
-from typing import Optional, Sequence, Tuple, TypedDict, cast
+from typing import Optional, Sequence, Tuple, cast
 
 from adafruit_ads1x15.analog_in import AnalogIn
+from typing_extensions import TypedDict
 
 from ..logger.logger import create_logger
 from ..stats.stats import AsTableStr

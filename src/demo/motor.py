@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from collections import defaultdict
 from time import sleep
-from typing import Any, cast
+from typing import Any, Dict, cast
 
 from hambone.logger.logger import create_logger
 from hambone.motor.CCKPaw import CCKPaw
@@ -42,7 +42,7 @@ def runMotorDemo(config: PawConfig) -> None:
 def _main(config: Config) -> None:
     logger = DEFAULT_LOGGER
     config = cast(
-        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)})
+        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(Dict[str, Any], config)})
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from logging import Logger
-from typing import TypedDict, cast
+from typing import cast
+
+from typing_extensions import TypedDict
 
 from hambone.gpio import GPIO
 

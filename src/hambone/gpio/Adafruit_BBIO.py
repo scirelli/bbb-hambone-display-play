@@ -2,7 +2,7 @@
 # flake8: noqa E402
 import sys
 from os.path import abspath, dirname, join, realpath
-from typing import Any, Callable
+from typing import Any, Callable, Dict
 
 from ..environment import ENV
 from ..logger.logger import create_logger
@@ -39,7 +39,7 @@ bbb.write_named_pin(REAR_LIMIT_SWITCH_PIN, PinState.LOW.value)
 
 
 def _generic_side_effect_factory(name: str) -> Callable[..., None]:
-    def f(*args: Any, **kwargs: dict[Any, Any]) -> None:
+    def f(*args: Any, **kwargs: Dict[Any, Any]) -> None:
         logger.info("%s(%s, %s)", name, args, kwargs)
 
     return f

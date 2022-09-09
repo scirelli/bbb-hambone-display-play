@@ -7,7 +7,7 @@ from os.path import basename, dirname, splitext
 from setuptools import find_namespace_packages, setup  # type: ignore
 
 PROJECT_NAME = "bbb-hamebone-python-driver"
-PYTHON_VERSION = (3, 10)
+PYTHON_VERSION = (3, 7)
 
 if sys.version_info < PYTHON_VERSION:
     raise RuntimeError(

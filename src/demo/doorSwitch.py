@@ -2,7 +2,7 @@
 from collections import defaultdict
 from logging import Logger
 from time import sleep
-from typing import Any, cast
+from typing import Any, Dict, cast
 
 from hambone.logger.logger import create_logger
 from hambone.neopixel import writer
@@ -77,7 +77,7 @@ def doorDemo(config: DoorConfig) -> None:  # pylint: disable = too-many-locals
 
 def _main(config: Config) -> None:
     config = cast(
-        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(dict[str, Any], config)})
+        Config, defaultdict(dict, {**DEFAULT_CONFIG, **cast(Dict[str, Any], config)})
     )  # Need to fix this for nesting
     logger.info("\n\nConfig: %s\n\n", config)
 
