@@ -1,0 +1,8 @@
+--index-url https://pypi.org/simple
+
+python-json-logger==2.0.2
+adafruit-blinka
+adafruit-bbio; platform_machine=='armv7l'
+wheel
+adafruit-circuitpython-ads1x15
+tabulate

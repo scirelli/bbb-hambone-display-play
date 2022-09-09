@@ -41,7 +41,7 @@ def create_GPIO(name="default_gpio_mock"):
     gpio.input.side_effect = _input_side_effect
     gpio.output.side_effect = _output_side_effect
 
-    return GPIO
+    return gpio
 
 
 GPIO = create_GPIO()

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum, unique
 from logging import Logger
-from typing import TypedDict, cast
+from typing import TypedDict
 
 import adafruit_ads1x15.ads1015 as ADS
 import board
@@ -41,7 +41,7 @@ class CCKIR:
 
     def __init__(self, config: CCKIR.Config):
         self._logger: Logger = config.get("logger", DEFAULT_LOGGER)
-        self._sensors: list[AnalogIn] = []  # type: ignore
+        self._sensors: list[AnalogIn] = []
 
         self._setup()
 
@@ -66,14 +66,14 @@ class CCKIR:
             AnalogIn(ads2, ADS.P2),
         ]
 
-    def get_sensors(self) -> list[AnalogIn]:  # type: ignore
+    def get_sensors(self) -> list[AnalogIn]:
         return self._sensors
 
-    def get_sensor(self, index: CCKIR.Sensor) -> AnalogIn:  # type: ignore
+    def get_sensor(self, index: CCKIR.Sensor) -> AnalogIn:
         return self._sensors[index.value]
 
     def read_sensor(self, index: CCKIR.Sensor) -> int:
-        return cast(int, self._sensors[index.value].value)
+        return self._sensors[index.value].value
 
     def read_front(self) -> CCKIR.SensorPair:
         return {
