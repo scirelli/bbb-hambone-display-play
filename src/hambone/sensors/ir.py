@@ -74,7 +74,7 @@ class IRNoThreadExcption(IRExceptoin):
     pass
 
 
-class Sensor(AnalogIn):  # type: ignore
+class Sensor(AnalogIn):
     pass
 
 
@@ -100,8 +100,8 @@ class MinMax(Calibrator):
         sensors: list[AnalogIn]
 
     @dataclass
-    class _ChannelReading:  # type: ignore
-        pin: AnalogIn  # type: ignore
+    class _ChannelReading:
+        pin: AnalogIn
         min_value: Optional[int] = None
         max_value: Optional[int] = None
 
@@ -143,11 +143,11 @@ class MinMax(Calibrator):
         ]
         self._stats = MinMax._Stats()
 
-    def add(self, sensor: AnalogIn) -> MinMax:  # type: ignore
+    def add(self, sensor: AnalogIn) -> MinMax:
         if self._calibrating:
             raise CalibrationInProgress()
 
-        self._channels.append(sensor)
+        self._channels.append(MinMax._ChannelReading(sensor))
         return self
 
     def start(self) -> None:

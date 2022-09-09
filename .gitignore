@@ -134,3 +134,4 @@ junit_xml_test_report.xml
 sonar-project.properties
 .DS_Store
 config.json
+.install-deps-dev

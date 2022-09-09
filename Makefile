@@ -1,90 +1,77 @@
 SHELL:=/usr/bin/env bash
 
+VENV_DIR=.venv
+VENV_BIN=$(VENV_DIR)/bin
+
+PIP=$(VENV_BIN)/pip
+PYTHON=$(VENV_BIN)/python
+
 .PHONY: all
 all: test
 
+$(VENV_DIR):
+	python3 -m venv --prompt $(notdir $(CURDIR)) ./$(VENV_DIR)
+	@echo 'Environment created. Run "source ./$(VENV_DIR)/bin/activate" to activate the virtual environment.\n"deactivate" to exit it.'
+
 .update-pip: ## Update pip
-	@pip install -U 'pip'
+	@$(PIP) install -U 'pip'
 
-.install-deps:
-	@pipenv install --dev --skip-lock
-	@touch .install-deps
+.install-deps-dev: $(VENV_DIR)
+	@$(PIP) install --require-virtualenv --requirement requirements-dev.txt
+	@touch .install-deps-dev
 
-.develop: .install-deps
-	pipenv install --skip-lock --editable .
+.develop: .install-deps-dev
+	@$(PIP) install --require-virtualenv --editable .
 	@touch .develop
+
+.PHONY: install-prod
+install-prod:  ## Install non-dev environment
+	@pip install --target . --requirement requirements.txt
+
+.PHONY: install-dev
+install-dev: .develop ## Install development environment
+
+.git/hooks/pre-commit: .develop
+	@$(VENV_BIN)/pre-commit install && \
+	$(VENV_BIN)/pre-commit autoupdate
+
+install-pre-commit: .git/hooks/pre-commit ## Install Git pre-commit hooks to run linter and mypy
+
 
 .PHONY: fmt format
 fmt format: ## Format code
-	pipenv run python3 -m pre_commit run --all-files --show-diff-on-failure
+	@$(PYTHON) -m pre_commit run --all-files --show-diff-on-failure
 
 .PHONY: mypy
 mypy:  ## Static type checking
-	pipenv run mypy
+	@$(VENV_BIN)/mypy
 
-.PHONY: lint ## Lint source code
-lint: fmt mypy
+.PHONY: lint
+lint: fmt mypy  ## Lint source code
 
-.PHONY: test ## Run unit tests
-test: .develop
-	@pipenv run pytest -q
+.PHONY: test
+test: .develop  ## Run unit tests
+	@$(VENV_BIN)/pytest -q
 
 .PHONY: vtest
 vtest: .develop ## Verbose tests
-	@pipenv run pytest -v
+	@$(VENV_BIN)/pytest -s -v
 
 .PHONY: vvtest
 vvtest: .develop ## More verbose tests
-	@pipenv run pytest -vv
-
-.PHONY: dbtest
-dbtest: .develop ## Debuggable tests
-	@pipenv run pytest --capture=no -vv
+	@$(VENV_BIN)/pytest -vv
 
 .PHONY: viewCoverage
 viewCoverage: htmlcov ## View the last coverage run
 	open -a "Google Chrome" htmlcov/index.html
 
-.PHONY: install
-install: .update-pip  ## Install non-dev environment
-	@pipenv install --skip-lock
-
-.PHONY: install-dev
-install-dev: .develop ## Install development environment
-
-.PHONY: gunicorn
-gunicorn:  ## Start gunicorn (would be used in docker)
-	@open http://localhost:5000/health
-	@pipenv run gunicorn -w 4 -b 127.0.0.1:5000 server:app
-
-.PHONY: run
-run-dev:  ## Start gunicorn (would be used in docker)
-	@open http://localhost:5000/health
-	@env FLASK_APP=src/<project name> \
-		 FLASK_ENV=development \
-		 FLASK_DEBUG=1 \
-		 _CONFIG_FILE=config.py \
-		 pipenv run flask run
-
-.git/hooks/pre-commit: .develop
-	pipenv run pre-commit install && \
-	pipenv run pre-commit autoupdate
-
-install-pre-commit: .git/hooks/pre-commit ## Install Git pre-commit hooks to run linter and mypy
-
-.PHONY: build-docker
-build-docker: Dockerfile
-	docker build \
-		--pull \
-		--no-cache \
-		--tag "scirelli/bbb-python" \
-		--file Dockerfile \
-		.
+.PHONY: shell
+shell: $(VENV_DIR)
+	@echo 'Activating virtual environment.' && $(SHELL) --init-file <(echo ". ~/.bashrc; . $(VENV_BIN)/activate;")
 
 .PHONY: clean
 clean: ## Remove all generated files and folders
-	@pipenv run pre-commit uninstall || true
-	@pipenv --rm || true
+	@$(PYTHON) -m pre-commit uninstall || true
 	@rm -rf .venv
 	@rm -rf `find . -name __pycache__`
 	@rm -f `find . -type f -name '*.py[co]' `
@@ -95,6 +82,7 @@ clean: ## Remove all generated files and folders
 	@rm -f .develop
 	@rm -f .flake
 	@rm -rf *.egg-info
+	@rm -f .install-deps-dev
 	@rm -f .install-deps
 	@rm -rf .mypy_cache
 	@python setup.py clean || true
@@ -110,5 +98,3 @@ help :
 	@grep -E '^[[:alnum:]_-]+[[:blank:]]?:.*##' $(MAKEFILE_LIST) \
 		| sort \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-# bash --init-file <(echo ". ~/.bashrc; . $project_root/bbb-hambone-python-driver/.venv/bin/activate; ")
