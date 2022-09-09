@@ -33,11 +33,11 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
         self._motor_in1_pin: str = config.get("motorIN1Pin", MOTOR_IN1_PIN)
         self._motor_in2_pin: str = config.get("motorIN2Pin", MOTOR_IN2_PIN)
         self._state: MotorDriver.State = MotorDriver.State.STOP
-        self.gpio_setup()
+        self._gpio_setup()
 
-    def gpio_setup(self) -> None:
-        GPIO.setup(MOTOR_IN1_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(MOTOR_IN2_PIN, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
+    def _gpio_setup(self) -> None:
+        GPIO.setup(self._motor_in1_pin, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self._motor_in2_pin, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
         self.stop()
 
     def forward(self) -> None:
@@ -81,9 +81,9 @@ class MotorLimits(metaclass=AdaGPIOSingleton):
         self._rear_limit_switch_pin: str = config.get(
             "rearLimitSwitchPin", REAR_LIMIT_SWITCH_PIN
         )
-        self.gpio_setup()
+        self._gpio_setup()
 
-    def gpio_setup(self) -> None:
+    def _gpio_setup(self) -> None:
         GPIO.setup(self._front_limit_switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self._rear_limit_switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
