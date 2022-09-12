@@ -29,6 +29,11 @@ $(VENV_DIR):
 install-prod:  ## Install non-dev environment
 	@pip install --target . --requirement requirements.txt
 
+.PHONY: run-prod
+run-prod:
+	@echo "Don't forget to export PYTHONPATH"
+	export PYTHONPATH=.:$(CWD)
+
 .PHONY: install-dev
 install-dev: .develop ## Install development environment
 
