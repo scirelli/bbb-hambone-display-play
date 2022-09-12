@@ -4,7 +4,7 @@ from os import path
 from tempfile import mkdtemp
 from unittest.mock import MagicMock, PropertyMock
 
-from hambone.logger.logger import create_file_logger
+from presenter_drivers.logger.logger import create_file_logger
 
 tempFilename = path.join(mkdtemp(), f"GPIO_{datetime.now().strftime('%H-%M-%S')}")
 logger = create_file_logger("MOCK_GPIO", tempFilename)

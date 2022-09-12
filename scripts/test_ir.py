@@ -3,8 +3,8 @@ from time import sleep
 
 from tabulate import tabulate
 
-from hambone.sensors.CCKIR import CCKIR
-from hambone.sensors.ir import MinMax as MinMaxCalibrator
+from presenter_drivers.sensors.CCKIR import CCKIR
+from presenter_drivers.sensors.ir import MinMax as MinMaxCalibrator
 
 cckir = CCKIR({})
 calibrator = MinMaxCalibrator({"sensors": cckir.get_sensors()})

@@ -3,7 +3,7 @@ from typing import List
 
 from typing_extensions import TypedDict
 
-from hambone.neopixel import writer
+from presenter_drivers.neopixel import writer
 
 
 class WriterFileConfig(TypedDict, total=False):

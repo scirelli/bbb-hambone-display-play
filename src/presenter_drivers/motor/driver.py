@@ -5,8 +5,7 @@ from logging import Logger
 
 from typing_extensions import TypedDict
 
-from hambone.gpio import GPIO
-
+from ..gpio import GPIO
 from ..logger.logger import create_logger
 from ..singleton import AdaGPIOSingleton  # type: ignore
 

@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from hambone.logger import logger
+from presenter_drivers.logger import logger
 
 
 @pytest.fixture()

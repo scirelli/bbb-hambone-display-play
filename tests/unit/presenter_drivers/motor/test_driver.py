@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, call, create_autospec
 import pytest
 from unit.fixtures.Adafruit_BBIO.GPIO import create_GPIO
 
-from hambone.motor import driver
-from hambone.motor.driver import MotorDriver, MotorLimits
+from presenter_drivers.motor import driver
+from presenter_drivers.motor.driver import MotorDriver, MotorLimits
 
 
 @pytest.fixture(autouse=True)

@@ -104,6 +104,7 @@ clean: ## Remove all generated files and folders
 	@rm -rf .mypy_cache
 	@python setup.py clean || true
 	@rm -rf .eggs
+	@rm -rf src/*.egg-info
 	@rm -rf .pytest_cache/
 
 .PHONY: list

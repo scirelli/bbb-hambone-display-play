@@ -3,8 +3,8 @@ from collections import defaultdict
 from time import sleep
 from typing import Any, Dict, cast
 
-from hambone.logger.logger import create_logger
-from hambone.motor.CCKPaw import CCKPaw
+from presenter_drivers.logger.logger import create_logger
+from presenter_drivers.motor.CCKPaw import CCKPaw
 
 from .config import Config, PawConfig
 

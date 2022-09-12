@@ -41,7 +41,7 @@ setup(
     packages=find_namespace_packages("src"),
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     package_data={
-        "hambone": ["py.typed"],
+        "presenter_drivers": ["py.typed"],
     },
     include_package_data=True,
     test_suite="tests.unit",

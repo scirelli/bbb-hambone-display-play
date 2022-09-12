@@ -10,7 +10,7 @@ from demo.motor import DEFAULT_CONFIG as pawDefaultConfig
 from demo.motor import runMotorDemo
 from demo.neopixel import DEFAULT_CONFIG as neopixelDefaultConfig
 from demo.neopixel import runNeoPixelDemo
-from hambone.logger.logger import create_logger
+from presenter_drivers.logger.logger import create_logger
 
 DEFAULT_CONFIG = {
     "cckConfig": {

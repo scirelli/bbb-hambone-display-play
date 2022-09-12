@@ -6,11 +6,11 @@ from typing import Any, Dict, List, Tuple, cast
 
 from tabulate import tabulate
 
-from hambone.logger.logger import create_logger
-from hambone.neopixel import writer
-from hambone.neopixel.NeoPixelPRU import NeoPixelPRU
-from hambone.sensors.CCKIR import CCKIR
-from hambone.sensors.ir import MinMax
+from presenter_drivers.logger.logger import create_logger
+from presenter_drivers.neopixel import writer
+from presenter_drivers.neopixel.NeoPixelPRU import NeoPixelPRU
+from presenter_drivers.sensors.CCKIR import CCKIR
+from presenter_drivers.sensors.ir import MinMax
 
 from .config import Config, IRConfig
 

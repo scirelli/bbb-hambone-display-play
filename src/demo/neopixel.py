@@ -4,9 +4,9 @@ from logging import Logger
 from time import sleep
 from typing import Any, Dict, cast
 
-from hambone.logger.logger import create_logger
-from hambone.neopixel import writer
-from hambone.neopixel.CCKDisplay import CCKDisplay
+from presenter_drivers.logger.logger import create_logger
+from presenter_drivers.neopixel import writer
+from presenter_drivers.neopixel.CCKDisplay import CCKDisplay
 
 from .config import CCKDisplayConfig, Config
 from .neopixelDemo import Demo as NeoPixelDemo

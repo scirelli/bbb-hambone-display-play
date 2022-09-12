@@ -1,8 +1,7 @@
 # type: ignore
 from typing import Any, Dict
 
-from hambone.gpio import GPIO
-
+from .gpio import GPIO
 from .logger.logger import create_logger
 
 DEFAULT_LOGGER = create_logger("Singleton")
@@ -20,7 +19,7 @@ class Singleton(type):
 class AdaGPIOSingleton(type):
     """
     This metaclass was created in an attempt to remove the need for the end user to have to remember/know to call GPIO.cleanup()
-    These classes should not have more than one instance attempting to control HAMBone hardware components.
+    These classes should not have more than one instance attempting to control presenter hardware components.
     Will need to implement thread safety if threads are going to be used.
     """
 
