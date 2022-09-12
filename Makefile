@@ -25,15 +25,6 @@ $(VENV_DIR):
 	@$(PIP) install --require-virtualenv --editable .
 	@touch .develop
 
-.PHONY: install-prod
-install-prod:  ## Install non-dev environment
-	@pip install --target . --requirement requirements.txt
-
-.PHONY: run-prod
-run-prod:
-	@echo "Don't forget to export PYTHONPATH"
-	export PYTHONPATH=.:$(CWD)
-
 .PHONY: install-dev
 install-dev: .develop ## Install development environment
 
@@ -42,6 +33,22 @@ install-dev: .develop ## Install development environment
 	$(VENV_BIN)/pre-commit autoupdate
 
 install-pre-commit: .git/hooks/pre-commit ## Install Git pre-commit hooks to run linter and mypy
+
+
+.PHONY: install-prod
+install-prod:  ## Install non-dev environment
+	@python3 -m pip install --target . --requirement requirements.txt
+
+.PHONY: run-prod
+run-prod:	## Run prod server
+	@echo "Don't forget to export PYTHONPATH"
+	export PYTHONPATH=.:$(CWD)
+
+.PHONY: install-pre-commit-bbb
+install-pre-commit-bbb: ## Install Git pre-commit hooks for the devs that want to develop on the BBB
+	@python3 -m pip install pre-commit
+	@if ! command -v pre-commit &> /dev/null; then echo You need to add "'""${HOME}/.local/bin""'" to your path. Or if you are using Pyenv run "'"pyenv rehash"'" ; false ; fi
+	@pre-commit install && pre-commit autoupdate
 
 
 .PHONY: fmt format

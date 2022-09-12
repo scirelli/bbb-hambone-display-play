@@ -24,6 +24,7 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
         STOP = 0
         FORWARD = 1
         BACKWARD = 2
+        BREAK = 3
 
     class Config(TypedDict, total=False):
         motorIN1Pin: str
@@ -61,6 +62,10 @@ class MotorDriver(metaclass=AdaGPIOSingleton):
             GPIO.output(self._motor_in2_pin, GPIO.LOW)
             GPIO.output(self._motor_in1_pin, GPIO.HIGH)
             self._state = MotorDriver.State.BACKWARD
+        elif s == MotorDriver.State.BREAK:
+            GPIO.output(self._motor_in2_pin, GPIO.HIGH)
+            GPIO.output(self._motor_in1_pin, GPIO.HIGH)
+            self._state = MotorDriver.State.BREAK
         else:
             GPIO.output(self._motor_in2_pin, GPIO.LOW)
             GPIO.output(self._motor_in1_pin, GPIO.LOW)
